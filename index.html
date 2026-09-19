@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Movie Recap Translator - Gemini 3.6 Flash</title>
+  <title>Movie Recap Translator - Gemini 3.5 Flash Lite</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -13,14 +13,11 @@
       min-height: 100vh;
       padding: 20px;
     }
-    .container {
-      max-width: 1100px;
-      margin: 0 auto;
-    }
+    .container { max-width: 1100px; margin: 0 auto; }
     h1 {
       text-align: center;
       margin-bottom: 8px;
-      background: linear-gradient(90deg, #ff6b6b, #ffd93d, #6bcb77);
+      background: linear-gradient(90deg, #6bcb77, #4d96ff, #ffd93d);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       font-size: 28px;
@@ -75,11 +72,7 @@
       gap: 10px;
       flex-wrap: wrap;
     }
-    .panel-title {
-      font-size: 16px;
-      font-weight: bold;
-      color: #ffd93d;
-    }
+    .panel-title { font-size: 16px; font-weight: bold; color: #ffd93d; }
     select {
       padding: 6px 12px;
       background: #1e1e2e;
@@ -102,10 +95,7 @@
       resize: vertical;
       font-family: inherit;
     }
-    textarea:focus {
-      outline: none;
-      border-color: #ffd93d;
-    }
+    textarea:focus { outline: none; border-color: #ffd93d; }
     .btn-row {
       display: flex;
       gap: 10px;
@@ -124,28 +114,16 @@
       font-family: inherit;
     }
     .btn-translate {
-      background: linear-gradient(90deg, #ff6b6b, #ffa94d);
+      background: linear-gradient(90deg, #4d96ff, #6bcb77);
       color: #fff;
     }
     .btn-translate:hover:not(:disabled) {
       transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+      box-shadow: 0 6px 20px rgba(77, 150, 255, 0.4);
     }
-    .btn-clear {
-      background: #3a3a4e;
-      color: #e0e0e0;
-    }
-    .btn-copy {
-      background: #6bcb77;
-      color: #1e1e2e;
-      padding: 8px 16px;
-      font-size: 13px;
-    }
-    button:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-      transform: none !important;
-    }
+    .btn-clear { background: #3a3a4e; color: #e0e0e0; }
+    .btn-copy { background: #6bcb77; color: #1e1e2e; padding: 8px 16px; font-size: 13px; }
+    button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
     .status {
       text-align: center;
       margin-top: 14px;
@@ -155,12 +133,7 @@
     .status.loading { color: #ffd93d; }
     .status.error { color: #ff6b6b; }
     .status.success { color: #6bcb77; }
-    .char-count {
-      font-size: 12px;
-      color: #777;
-      text-align: right;
-      margin-top: 6px;
-    }
+    .char-count { font-size: 12px; color: #777; text-align: right; margin-top: 6px; }
     .spinner {
       display: inline-block;
       width: 14px;
@@ -173,12 +146,22 @@
       margin-right: 6px;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
+    .model-badge {
+      display: inline-block;
+      background: #4d96ff22;
+      color: #4d96ff;
+      border: 1px solid #4d96ff55;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      margin-left: 6px;
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>🎬 Movie Recap Translator</h1>
-    <p class="subtitle">တရုတ် / အင်္ဂလိပ် စာသား → မြန်မာဘာသာပြန် | Gemini 3.6 Flash</p>
+    <h1>🎬 Movie Recap Translator <span class="model-badge">Gemini 3.5 Flash Lite</span></h1>
+    <p class="subtitle">တရုတ် / အင်္ဂလိပ် စာသား → မြန်မာဘာသာပြန်</p>
 
     <div class="api-box">
       <label>🔑 Gemini API Key:</label>
@@ -219,7 +202,8 @@
   </div>
 
   <script>
-    const API_MODEL = 'gemini-3.5 flash -Lite';
+    // ✅ Gemini 3.5 Flash Lite
+    const API_MODEL = 'gemini-3.5-flash-lite';
     const API_BASE = 'https://generativelanguage.googleapis.com/v1beta/models';
 
     const sourceText = document.getElementById('sourceText');
@@ -230,7 +214,6 @@
     const resultCount = document.getElementById('resultCount');
     const apiKeyInput = document.getElementById('apiKey');
 
-    // localStorage မှာ API key သိမ်း
     apiKeyInput.value = localStorage.getItem('gemini_api_key') || '';
     apiKeyInput.addEventListener('input', () => {
       localStorage.setItem('gemini_api_key', apiKeyInput.value.trim());
@@ -356,9 +339,7 @@ ${text}
           .join('')
           .trim();
 
-        if (!translated) {
-          throw new Error('ဘာသာပြန်ချက် မရရှိပါ');
-        }
+        if (!translated) throw new Error('ဘာသာပြန်ချက် မရရှိပါ');
 
         resultText.value = translated;
         resultCount.textContent = translated.length + ' လုံး';
@@ -372,7 +353,6 @@ ${text}
       }
     }
 
-    // Ctrl+Enter ဖြင့် translate
     sourceText.addEventListener('keydown', (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
         translateText();
