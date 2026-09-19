@@ -1,930 +1,383 @@
 <!DOCTYPE html>
 <html lang="my">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SIGNAL PATH — Transcribe &amp; Translate Console</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+Myanmar:wght@400;500;600&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --bg-void:#0B0E11;
-    --panel:#141920;
-    --panel-raised:#1B222B;
-    --line:#2A323C;
-    --teal:#3ED6B5;
-    --teal-dim:#1F5C4F;
-    --amber:#F2A93B;
-    --amber-dim:#5C4322;
-    --error:#E8604C;
-    --text-hi:#EDF2F5;
-    --text-mid:#9AA7B2;
-    --text-low:#5C6672;
-  }
-  *{box-sizing:border-box;}
-  body{
-    margin:0;
-    background:
-      radial-gradient(ellipse 900px 500px at 50% -10%, rgba(62,214,181,0.06), transparent),
-      var(--bg-void);
-    color:var(--text-hi);
-    font-family:'Inter', 'Noto Sans Myanmar', sans-serif;
-    padding:32px 16px 80px;
-  }
-  .wrap{max-width:880px;margin:0 auto;}
-
-  /* ===== Nameplate ===== */
-  .nameplate{
-    display:flex;align-items:center;justify-content:space-between;
-    padding-bottom:22px;margin-bottom:28px;
-    border-bottom:1px solid var(--line);
-  }
-  .brand{display:flex;align-items:baseline;gap:12px;}
-  .brand .mark{
-    font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:22px;letter-spacing:0.5px;
-  }
-  .brand .mark span{color:var(--teal);}
-  .brand .sub{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-low);letter-spacing:1.5px;text-transform:uppercase;}
-  .led{width:8px;height:8px;border-radius:50%;background:var(--text-low);box-shadow:0 0 0 3px rgba(255,255,255,0.02);}
-  .led.on{background:var(--teal);box-shadow:0 0 8px 1px var(--teal);}
-  .led.busy{background:var(--amber);box-shadow:0 0 8px 1px var(--amber);animation:pulse 1s ease-in-out infinite;}
-  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.35;}}
-
-  /* ===== Channel strips ===== */
-  .channel{
-    background:var(--panel);
-    border:1px solid var(--line);
-    border-radius:6px;
-    margin-bottom:16px;
-    overflow:hidden;
-  }
-  .channel-head{
-    display:flex;align-items:center;gap:12px;
-    padding:14px 18px;
-    border-bottom:1px solid var(--line);
-    background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
-  }
-  .ch-num{
-    font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--bg-void);
-    background:var(--text-low);
-    border-radius:3px;padding:3px 7px;font-weight:700;letter-spacing:0.5px;
-  }
-  .channel.active .ch-num{background:var(--teal);}
-  .ch-title{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:15px;flex:1;}
-  .ch-status{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-low);text-transform:uppercase;letter-spacing:1px;display:flex;align-items:center;gap:6px;}
-  .channel-body{padding:18px;}
-
-  /* ===== Form elements ===== */
-  .row{display:flex;gap:12px;flex-wrap:wrap;}
-  .field{flex:1;min-width:220px;margin-bottom:14px;}
-  .field label{
-    display:block;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-mid);
-    text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;
-  }
-  input[type=text],input[type=password],select{
-    width:100%;background:var(--bg-void);border:1px solid var(--line);color:var(--text-hi);
-    padding:10px 12px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:13px;
-    outline:none;transition:border-color 0.15s;
-  }
-  input[type=text]:focus,input[type=password]:focus,select:focus{border-color:var(--teal);}
-  select{cursor:pointer;}
-  .hint{font-size:11px;color:var(--text-low);margin-top:5px;font-family:'Inter',sans-serif;}
-  .hint a{color:var(--teal);text-decoration:none;}
-
-  .filebox{
-    border:1.5px dashed var(--line);border-radius:5px;padding:22px;text-align:center;
-    cursor:pointer;transition:border-color 0.15s,background 0.15s;position:relative;
-  }
-  .filebox:hover{border-color:var(--teal-dim);background:rgba(62,214,181,0.03);}
-  .filebox.has-file{border-color:var(--teal);border-style:solid;background:rgba(62,214,181,0.04);}
-  .filebox input{position:absolute;inset:0;opacity:0;cursor:pointer;}
-  .filebox .fb-title{font-family:'Space Grotesk',sans-serif;font-size:13px;color:var(--text-hi);}
-  .filebox .fb-sub{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-low);margin-top:4px;}
-
-  button{
-    font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13px;
-    background:var(--teal);color:#08211B;border:none;border-radius:4px;
-    padding:11px 20px;cursor:pointer;letter-spacing:0.3px;transition:opacity 0.15s,transform 0.1s;
-  }
-  button:hover:not(:disabled){opacity:0.88;}
-  button:active:not(:disabled){transform:scale(0.98);}
-  button:disabled{background:var(--panel-raised);color:var(--text-low);cursor:not-allowed;}
-  button.ghost{background:transparent;border:1px solid var(--line);color:var(--text-mid);}
-  button.ghost:hover:not(:disabled){border-color:var(--teal);color:var(--teal);}
-  button.amber{background:var(--amber);color:#2E1D06;}
-  .btnrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:4px;}
-
-  /* ===== Waveform ===== */
-  .waveform{
-    display:flex;align-items:center;justify-content:center;gap:3px;
-    height:44px;margin:6px 0 14px;
-  }
-  .waveform .bar{
-    width:3px;background:var(--line);border-radius:2px;height:6px;
-    transition:height 0.2s;
-  }
-  .waveform.live .bar{background:var(--teal);animation:wave 1.1s ease-in-out infinite;}
-  .waveform .bar:nth-child(1){animation-delay:0s;} .waveform .bar:nth-child(2){animation-delay:0.08s;}
-  .waveform .bar:nth-child(3){animation-delay:0.16s;} .waveform .bar:nth-child(4){animation-delay:0.24s;}
-  .waveform .bar:nth-child(5){animation-delay:0.32s;} .waveform .bar:nth-child(6){animation-delay:0.4s;}
-  .waveform .bar:nth-child(7){animation-delay:0.48s;} .waveform .bar:nth-child(8){animation-delay:0.56s;}
-  .waveform .bar:nth-child(9){animation-delay:0.64s;} .waveform .bar:nth-child(10){animation-delay:0.72s;}
-  .waveform .bar:nth-child(11){animation-delay:0.8s;} .waveform .bar:nth-child(12){animation-delay:0.88s;}
-  .waveform .bar:nth-child(13){animation-delay:0.96s;} .waveform .bar:nth-child(14){animation-delay:1.04s;}
-  @keyframes wave{0%,100%{height:6px;}50%{height:36px;}}
-
-  .progress-line{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--amber);text-align:center;min-height:14px;}
-
-  /* ===== Transcript table ===== */
-  .tape-counter{
-    font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--amber);
-    background:var(--bg-void);border:1px solid var(--amber-dim);border-radius:3px;
-    padding:2px 8px;display:inline-block;white-space:nowrap;
-  }
-  .segment{
-    display:grid;grid-template-columns:78px 1fr;gap:14px;
-    padding:12px 0;border-bottom:1px solid var(--line);
-  }
-  .segment:last-child{border-bottom:none;}
-  .seg-orig{font-size:14px;line-height:1.55;color:var(--text-hi);}
-  .seg-trans{font-size:14px;line-height:1.6;color:var(--teal);margin-top:6px;font-family:'Noto Sans Myanmar','Inter',sans-serif;}
-  .empty-note{color:var(--text-low);font-size:13px;font-style:italic;}
-
-  .transcript-scroll{max-height:480px;overflow-y:auto;padding-right:4px;}
-  .transcript-scroll::-webkit-scrollbar{width:6px;}
-  .transcript-scroll::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px;}
-
-  .errbox{
-    background:rgba(232,96,76,0.08);border:1px solid var(--error);color:#F5B8AD;
-    border-radius:4px;padding:10px 14px;font-size:12px;font-family:'JetBrains Mono',monospace;
-    margin-top:12px;white-space:pre-wrap;
-  }
-
-  .meta-line{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-low);margin-top:10px;}
-  footer{text-align:center;margin-top:36px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-low);letter-spacing:0.5px;}
-
-  /* ===== Name-lock (Drama/Story Recap) ===== */
-  .namelock{
-    margin:16px 0 4px;
-    padding:14px 16px;
-    background:var(--panel-raised);
-    border:1px solid var(--line);
-    border-radius:5px;
-  }
-  .namelock-toggle{
-    display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none;
-  }
-  .namelock-toggle input[type=checkbox]{position:absolute;opacity:0;width:0;height:0;}
-  .namelock-box{
-    width:20px;height:20px;flex:none;border-radius:5px;
-    border:1.5px solid var(--line);background:var(--bg-void);
-    display:flex;align-items:center;justify-content:center;
-    transition:background 0.15s,border-color 0.15s;
-  }
-  .namelock-check{color:#2E1D06;font-size:12px;font-weight:700;opacity:0;transition:opacity 0.1s;}
-  .namelock-toggle input:checked + .namelock-box{background:var(--amber);border-color:var(--amber);}
-  .namelock-toggle input:checked + .namelock-box .namelock-check{opacity:1;}
-  .namelock-toggle input:focus-visible + .namelock-box{outline:2px solid var(--teal);outline-offset:2px;}
-  .namelock-text{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:14px;}
-  .namelock-fields{margin-top:14px;}
-
-  /* ===== Telegram links ===== */
-  .telegram-links{
-    margin-top:28px;
-    padding:18px;
-    background:var(--panel);
-    border:1px solid var(--line);
-    border-radius:6px;
-  }
-  .telegram-links-title{
-    font-family:'Space Grotesk',sans-serif;
-    font-weight:600;
-    font-size:15px;
-    margin-bottom:12px;
-  }
-  .telegram-links-grid{
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:10px;
-  }
-  .telegram-btn{
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:8px;
-    min-height:44px;
-    padding:11px 14px;
-    border-radius:5px;
-    text-decoration:none;
-    font-family:'Space Grotesk',sans-serif;
-    font-weight:600;
-    font-size:13px;
-    letter-spacing:.2px;
-    background:#229ED9;
-    color:#fff;
-    border:1px solid rgba(255,255,255,.08);
-    transition:opacity .15s, transform .1s, filter .15s;
-  }
-  .telegram-btn:hover{
-    opacity:.9;
-    filter:brightness(1.05);
-  }
-  .telegram-btn:active{
-    transform:scale(.98);
-  }
-  .telegram-icon{
-    font-size:17px;
-    line-height:1;
-  }
-  .telegram-btn.admin{
-    background:var(--panel-raised);
-    border-color:var(--line);
-    color:var(--teal);
-  }
-  @media (max-width:700px){
-    .telegram-links-grid{grid-template-columns:1fr;}
-  }
-
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Movie Recap Translator - Gemini 3.6 Flash</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Pyidaungsu', 'Myanmar Text', sans-serif;
+      background: linear-gradient(135deg, #1e1e2e, #2d2d44);
+      color: #e0e0e0;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 8px;
+      background: linear-gradient(90deg, #ff6b6b, #ffd93d, #6bcb77);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-size: 28px;
+    }
+    .subtitle {
+      text-align: center;
+      color: #999;
+      margin-bottom: 24px;
+      font-size: 14px;
+    }
+    .api-box {
+      background: #2a2a3e;
+      padding: 16px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .api-box label { font-size: 14px; color: #bbb; }
+    .api-box input {
+      flex: 1;
+      min-width: 200px;
+      padding: 10px 14px;
+      background: #1e1e2e;
+      border: 1px solid #444;
+      border-radius: 8px;
+      color: #e0e0e0;
+      font-size: 14px;
+    }
+    .panel-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    @media (max-width: 768px) {
+      .panel-grid { grid-template-columns: 1fr; }
+    }
+    .panel {
+      background: #2a2a3e;
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+    }
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .panel-title {
+      font-size: 16px;
+      font-weight: bold;
+      color: #ffd93d;
+    }
+    select {
+      padding: 6px 12px;
+      background: #1e1e2e;
+      color: #e0e0e0;
+      border: 1px solid #444;
+      border-radius: 6px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    textarea {
+      width: 100%;
+      min-height: 350px;
+      padding: 14px;
+      background: #1a1a2a;
+      border: 1px solid #3a3a4e;
+      border-radius: 8px;
+      color: #e0e0e0;
+      font-size: 15px;
+      line-height: 1.7;
+      resize: vertical;
+      font-family: inherit;
+    }
+    textarea:focus {
+      outline: none;
+      border-color: #ffd93d;
+    }
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    button {
+      padding: 12px 28px;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+    .btn-translate {
+      background: linear-gradient(90deg, #ff6b6b, #ffa94d);
+      color: #fff;
+    }
+    .btn-translate:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+    }
+    .btn-clear {
+      background: #3a3a4e;
+      color: #e0e0e0;
+    }
+    .btn-copy {
+      background: #6bcb77;
+      color: #1e1e2e;
+      padding: 8px 16px;
+      font-size: 13px;
+    }
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+    .status {
+      text-align: center;
+      margin-top: 14px;
+      font-size: 14px;
+      min-height: 20px;
+    }
+    .status.loading { color: #ffd93d; }
+    .status.error { color: #ff6b6b; }
+    .status.success { color: #6bcb77; }
+    .char-count {
+      font-size: 12px;
+      color: #777;
+      text-align: right;
+      margin-top: 6px;
+    }
+    .spinner {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid #ffd93d;
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
 </head>
 <body>
-<div class="wrap">
+  <div class="container">
+    <h1>🎬 Movie Recap Translator</h1>
+    <p class="subtitle">တရုတ် / အင်္ဂလိပ် စာသား → မြန်မာဘာသာပြန် | Gemini 3.6 Flash</p>
 
-  <div class="nameplate">
-    <div class="brand">
-      <div class="mark">Translate<span>Tool</span></div>
-      <div class="sub"> </div>
+    <div class="api-box">
+      <label>🔑 Gemini API Key:</label>
+      <input type="password" id="apiKey" placeholder="AIza... သင့် API Key ထည့်ပါ">
+      <button class="btn-copy" onclick="toggleKey()" id="toggleBtn">ပြရန်</button>
     </div>
-    <div id="masterLed" class="led"></div>
-  </div>
 
-  <!-- CHANNEL 01 — KEYS -->
-  <div class="channel active">
-    <div class="channel-head">
-      <div class="ch-num">CH.01</div>
-      <div class="ch-title">API Keys</div>
-      <div class="ch-status" id="keysStatus">NOT SET</div>
-    </div>
-    <div class="channel-body">
-      <div class="row">
-        <div class="field">
-          <label>AssemblyAI API Key</label>
-          <input type="password" id="assemblyKey" placeholder="•••••••••••••••••••">
-          <div class="hint">Get one at <a href="https://www.assemblyai.com/dashboard" target="_blank" rel="noopener">assemblyai.com/dashboard</a></div>
-        </div>
-        <div class="field">
-          <label>Gemini API Key</label>
-          <input type="password" id="geminiKey" placeholder="•••••••••••••••••••">
-          <div class="hint">Get one at <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a></div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="field" style="max-width:280px;">
-          <label>Gemini Model</label>
-          <select id="geminiModel">
-            <option value="gemini-3.6-flash" selected>Gemini 3.6 Flash</option>
-            <option value="gemini-3.5-flash-lite">Gemini 3.5 Flash-Lite</option>
-            <option value="__custom__">Custom…</option>
-          </select>
-          <div class="hint"> </div>
-        </div>
-        <div class="field" id="customModelField" style="display:none;max-width:280px;">
-          <label>Custom model id</label>
-          <input type="text" id="customModel" placeholder="e.g. gemini-2.0-flash">
-        </div>
-      </div>
-      <div class="meta-line"></div>
-    </div>
-  </div>
-
-  <!-- CHANNEL 02 — SOURCE + TRANSCRIBE -->
-  <div class="channel active">
-    <div class="channel-head">
-      <div class="ch-num">CH.02</div>
-      <div class="ch-title">Source Audio / Video</div>
-      <div class="ch-status" id="transStatus">IDLE</div>
-    </div>
-    <div class="channel-body">
-      <div class="filebox" id="fileBox">
-        <input type="file" id="fileInput" accept="audio/*,video/*">
-        <div class="fb-title" id="fbTitle">Drop or click to choose a file</div>
-        <div class="fb-sub" id="fbSub">MP3, WAV, M4A, MP4, MOV …</div>
-      </div>
-      <div class="waveform" id="waveform">
-        <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
-        <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
-        <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
-        <div class="bar"></div><div class="bar"></div>
-      </div>
-      <div class="progress-line" id="transProgress">&nbsp;</div>
-      <div class="btnrow">
-        <button id="btnTranscribe">Run Transcription</button>
-      </div>
-      <div id="transErr"></div>
-    </div>
-  </div>
-
-  <!-- CHANNEL 03 — PASTE TEXT (SKIP TRANSCRIPTION) -->
-  <div class="channel active">
-    <div class="channel-head">
-      <div class="ch-num">CH.03</div>
-      <div class="ch-title">Paste Text </div>
-      <div class="ch-status" id="pasteStatus">IDLE</div>
-    </div>
-    <div class="channel-body">
-      <div class="field" style="min-width:100%;">
-        <label>Text to Translate</label>
-        <textarea id="pasteText" rows="6" placeholder="အသံဖိုင်မရှိပါက ဒီနေရာမှာ စာသားကို တိုက်ရိုက်ကူးထည့်ပြီး ဘာသာပြန်နိုင်ပါတယ်…"
-          style="width:100%;background:var(--bg-void);border:1px solid var(--line);color:var(--text-hi);padding:10px 12px;border-radius:4px;font-family:'Noto Sans Myanmar','Inter',sans-serif;font-size:13px;outline:none;resize:vertical;"></textarea>
-        <div class="hint"> </div>
-      </div>
-      <div class="btnrow">
-        <button id="btnUseText">Transcript</button>
-        <button id="btnClearText" class="ghost">Clear</button>
-      </div>
-      <div id="pasteErr"></div>
-    </div>
-  </div>
-
-  <!-- CHANNEL 04 — TRANSCRIPT -->
-  <div class="channel active">
-    <div class="channel-head">
-      <div class="ch-num">CH.04</div>
-      <div class="ch-title">Transcript (Timestamped)</div>
-      <div class="ch-status" id="segCount">0 SEGMENTS</div>
-    </div>
-    <div class="channel-body">
-      <div class="transcript-scroll" id="transcriptList">
-        <div class="empty-note">အသံဖိုင်ကို transcribe လုပ်ပြီးမှ စာသားစာကြောင်းတွေ ဒီနေရာမှာ timestamp နဲ့တကွ ပေါ်လာပါမယ်။</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- CHANNEL 04 — TRANSLATE -->
-  <div class="channel active">
-    <div class="channel-head">
-      <div class="ch-num">CH.05</div>
-      <div class="ch-title">Translate</div>
-      <div class="ch-status" id="translateStatus">WAITING ON CH.03</div>
-    </div>
-    <div class="channel-body">
-      <div class="row">
-        <div class="field" style="max-width:280px;">
-          <label>Target Language</label>
-          <select id="targetLang">
-            <option value="Burmese (Myanmar)" selected>မြန်မာ (Burmese)</option>
-            <option value="English">English</option>
-            <option value="Thai">ไทย (Thai)</option>
-            <option value="Chinese (Simplified)">中文 (Chinese)</option>
-            <option value="Japanese">日本語 (Japanese)</option>
-            <option value="Korean">한국어 (Korean)</option>
-            <option value="French">Français</option>
-            <option value="Spanish">Español</option>
-            <option value="__custom__">Custom…</option>
+    <div class="panel-grid">
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">📥 မူရင်းစာသား</span>
+          <select id="sourceLang">
+            <option value="auto">Auto Detect</option>
+            <option value="Chinese">တရုတ်</option>
+            <option value="English">အင်္ဂလိပ်</option>
           </select>
         </div>
-        <div class="field" id="customLangField" style="display:none;">
-          <label>Custom language</label>
-          <input type="text" id="customLang" placeholder="e.g. Vietnamese">
-        </div>
+        <textarea id="sourceText" placeholder="ဒီနေရာမှာ တရုတ် သို့မဟုတ် အင်္ဂလိပ် စာသားကို paste လုပ်ပါ..."></textarea>
+        <div class="char-count" id="sourceCount">0 လုံး</div>
       </div>
 
-      <div class="namelock">
-        <label class="namelock-toggle">
-          <input type="checkbox" id="chkDrama">
-          <span class="namelock-box"><span class="namelock-check">✓</span></span>
-          <span class="namelock-text">ဇာတ်လမ်းလား (Drama / Story Recap?)</span>
-        </label>
-        <div class="row namelock-fields" id="nameFields" style="display:none;">
-          <div class="field">
-            <label>မင်းသမီးအမည် (Female)</label>
-            <input type="text" id="femaleName" placeholder="e.g. ရှင်းရှင်း">
-          </div>
-          <div class="field">
-            <label>မင်းသားအမည် (Male)</label>
-            <input type="text" id="maleName" placeholder="e.g. ရန်ရန်">
-          </div>
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">📤 မြန်မာဘာသာပြန်</span>
+          <button class="btn-copy" onclick="copyResult()">📋 Copy</button>
         </div>
-        <div class="hint" id="nameHint" style="display:none;">ဒီအမည်တွေကို ဘာသာပြန်တစ်လျှောက်လုံး အမြဲတည်ငြိမ်စွာ သုံးပေးပါမယ်။</div>
+        <textarea id="resultText" placeholder="ဘာသာပြန်ချက် ဒီနေရာမှာ ပေါ်လာပါမည်..." readonly></textarea>
+        <div class="char-count" id="resultCount">0 လုံး</div>
       </div>
-
-      <div class="btnrow">
-        <button id="btnTranslate" class="amber" disabled>Translate Transcript</button>
-        <button id="btnExportSrt" class="ghost" disabled>Download .srt</button>
-        <button id="btnExportTxt" class="ghost" disabled>Download .txt</button>
-        <button id="btnCopyTranslation" class="ghost" disabled>Copy Translation</button>
-      </div>
-      <div class="progress-line" id="translateProgress">&nbsp;</div>
-      <div id="translateErr"></div>
     </div>
+
+    <div class="btn-row">
+      <button class="btn-translate" id="translateBtn" onclick="translateText()">🌐 မြန်မာလို ဘာသာပြန်မယ်</button>
+      <button class="btn-clear" onclick="clearAll()">🗑️ ရှင်းမယ်</button>
+    </div>
+
+    <div class="status" id="status"></div>
   </div>
 
+  <script>
+    const API_MODEL = 'gemini-3.6-flash';
+    const API_BASE = 'https://generativelanguage.googleapis.com/v1beta/models';
 
-  <!-- ===== TELEGRAM LINKS ===== -->
-  <div class="telegram-links">
-    <div class="telegram-links-title">Telegram Community</div>
-    <div class="telegram-links-grid">
-      <a class="telegram-btn" href="https://t.me/linlinzawofficial" target="_blank" rel="noopener noreferrer">
-        <span>Telegram Channel Join</span>
-      </a>
-      <a class="telegram-btn" href="https://t.me/buemeserecapview" target="_blank" rel="noopener noreferrer">
-        <span>စကားပြော Group Chat</span>
-      </a>
-      <a class="telegram-btn admin" href="https://t.me/@Smile_p2" target="_blank" rel="noopener noreferrer">
-        <span>Admin ဆက်သွယ်ရန်</span>
-      </a>
-    </div>
-  </div>
+    const sourceText = document.getElementById('sourceText');
+    const resultText = document.getElementById('resultText');
+    const statusEl = document.getElementById('status');
+    const translateBtn = document.getElementById('translateBtn');
+    const sourceCount = document.getElementById('sourceCount');
+    const resultCount = document.getElementById('resultCount');
+    const apiKeyInput = document.getElementById('apiKey');
 
-  <footer> </footer>
-</div>
+    // localStorage မှာ API key သိမ်း
+    apiKeyInput.value = localStorage.getItem('gemini_api_key') || '';
+    apiKeyInput.addEventListener('input', () => {
+      localStorage.setItem('gemini_api_key', apiKeyInput.value.trim());
+    });
 
-<script>
-let selectedFile = null;
-let segments = [];       // [{start, end, text, translated}]
-let assemblyBaseHeaders = () => ({ authorization: document.getElementById('assemblyKey').value.trim() });
+    sourceText.addEventListener('input', () => {
+      sourceCount.textContent = sourceText.value.length + ' လုံး';
+    });
+    resultText.addEventListener('input', () => {
+      resultCount.textContent = resultText.value.length + ' လုံး';
+    });
 
-const $ = id => document.getElementById(id);
-
-// ---------- Persistent storage (browser localStorage) ----------
-const STORAGE_KEY = 'signalpath_settings_v1';
-
-function saveSettings(){
-  try {
-    const data = {
-      assemblyKey: $('assemblyKey').value,
-      geminiKey: $('geminiKey').value,
-      geminiModel: $('geminiModel').value,
-      customModel: $('customModel').value,
-      targetLang: $('targetLang').value,
-      customLang: $('customLang').value,
-      dramaMode: $('chkDrama').checked,
-      femaleName: $('femaleName').value,
-      maleName: $('maleName').value
-    };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  } catch(e){ /* localStorage unavailable — silently skip */ }
-}
-
-function loadSettings(){
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if(!raw) return;
-    const data = JSON.parse(raw);
-    if(data.assemblyKey) $('assemblyKey').value = data.assemblyKey;
-    if(data.geminiKey) $('geminiKey').value = data.geminiKey;
-    if(data.geminiModel){
-      $('geminiModel').value = data.geminiModel;
-      // if the saved model id no longer exists as an option, fall back to Custom
-      if($('geminiModel').value !== data.geminiModel){
-        $('geminiModel').value = '__custom__';
-        $('customModel').value = data.geminiModel;
+    function toggleKey() {
+      const inp = apiKeyInput;
+      const btn = document.getElementById('toggleBtn');
+      if (inp.type === 'password') {
+        inp.type = 'text';
+        btn.textContent = 'ဖျောက်ရန်';
+      } else {
+        inp.type = 'password';
+        btn.textContent = 'ပြရန်';
       }
     }
-    if(data.customModel) $('customModel').value = data.customModel;
-    if(data.targetLang) $('targetLang').value = data.targetLang;
-    if(data.customLang) $('customLang').value = data.customLang;
-    if(data.femaleName) $('femaleName').value = data.femaleName;
-    if(data.maleName) $('maleName').value = data.maleName;
-    if(data.dramaMode) $('chkDrama').checked = true;
-    $('customModelField').style.display = $('geminiModel').value === '__custom__' ? 'block' : 'none';
-    $('customLangField').style.display = $('targetLang').value === '__custom__' ? 'block' : 'none';
-    $('nameFields').style.display = $('chkDrama').checked ? 'flex' : 'none';
-    $('nameHint').style.display = $('chkDrama').checked ? 'block' : 'none';
-  } catch(e){ /* corrupted or unavailable — ignore and start fresh */ }
-}
 
-loadSettings();
-['assemblyKey','geminiKey','geminiModel','customModel','targetLang','customLang','femaleName','maleName'].forEach(id => {
-  $(id).addEventListener('input', saveSettings);
-  $(id).addEventListener('change', saveSettings);
-});
-refreshKeysStatus();
-
-// ---------- Keys status ----------
-function refreshKeysStatus(){
-  const a = $('assemblyKey').value.trim();
-  const g = $('geminiKey').value.trim();
-  const el = $('keysStatus');
-  if(a && g){ el.textContent = 'READY'; el.style.color = 'var(--teal)'; }
-  else { el.textContent = 'NOT SET'; el.style.color = 'var(--text-low)'; }
-}
-$('assemblyKey').addEventListener('input', refreshKeysStatus);
-$('geminiKey').addEventListener('input', refreshKeysStatus);
-
-// ---------- Custom language toggle ----------
-$('targetLang').addEventListener('change', () => {
-  $('customLangField').style.display = $('targetLang').value === '__custom__' ? 'block' : 'none';
-});
-function currentTargetLang(){
-  const v = $('targetLang').value;
-  return v === '__custom__' ? ($('customLang').value.trim() || 'Burmese (Myanmar)') : v;
-}
-
-$('geminiModel').addEventListener('change', () => {
-  $('customModelField').style.display = $('geminiModel').value === '__custom__' ? 'block' : 'none';
-});
-function currentGeminiModel(){
-  const v = $('geminiModel').value;
-  return v === '__custom__' ? ($('customModel').value.trim() || 'gemini-3.6-flash') : v;
-}
-
-// ---------- Drama / Story Recap name-lock ----------
-$('chkDrama').addEventListener('change', () => {
-  const on = $('chkDrama').checked;
-  $('nameFields').style.display = on ? 'flex' : 'none';
-  $('nameHint').style.display = on ? 'block' : 'none';
-  saveSettings();
-});
-function dramaNameLockActive(){
-  return $('chkDrama').checked && ($('femaleName').value.trim() || $('maleName').value.trim());
-}
-function characterNameNote(){
-  if(!dramaNameLockActive()) return '';
-  const parts = [];
-  const f = $('femaleName').value.trim();
-  const m = $('maleName').value.trim();
-  if(f) parts.push(`the female lead is named "${f}"`);
-  if(m) parts.push(`the male lead is named "${m}"`);
-  return `\n\nThis is a drama/story recap. Keep character names consistent and unchanged throughout: ${parts.join(' and ')}. Do not translate, alter, or vary the spelling of these names in any line — reproduce them exactly as given every time they appear.`;
-}
-
-// ---------- File picker ----------
-$('fileInput').addEventListener('change', e => {
-  const f = e.target.files[0];
-  if(!f) return;
-  selectedFile = f;
-  $('fileBox').classList.add('has-file');
-  $('fbTitle').textContent = f.name;
-  $('fbSub').textContent = (f.size/1024/1024).toFixed(2) + ' MB · ' + (f.type || 'unknown type');
-});
-
-// ---------- Paste text (skip transcription) ----------
-function srtTimeToMs(t){
-  // "00:00:03,000" or "00:00:03.000"
-  const m = t.match(/(\d{2}):(\d{2}):(\d{2})[,.](\d{3})/);
-  if(!m) return 0;
-  const [, h, mi, s, ms] = m;
-  return (+h)*3600000 + (+mi)*60000 + (+s)*1000 + (+ms);
-}
-
-function looksLikeSrt(raw){
-  // A real SRT has at least one "index line" followed by a "-->" timestamp line
-  return /^\s*\d+\s*[\r\n]+\d{2}:\d{2}:\d{2}[,.]\d{3}\s*-->\s*\d{2}:\d{2}:\d{2}[,.]\d{3}/m.test(raw);
-}
-
-function parseSrt(raw){
-  const blocks = raw.replace(/\r\n/g,'\n').split(/\n\s*\n/).map(b => b.trim()).filter(Boolean);
-  const out = [];
-  for(const block of blocks){
-    const lines = block.split('\n');
-    // First line is usually the numeric index — skip it if so
-    let idx = 0;
-    if(/^\d+$/.test(lines[0].trim())) idx = 1;
-    const timeLine = lines[idx] || '';
-    const tm = timeLine.match(/(\d{2}:\d{2}:\d{2}[,.]\d{3})\s*-->\s*(\d{2}:\d{2}:\d{2}[,.]\d{3})/);
-    if(!tm) continue; // not a valid block, skip
-    const start = srtTimeToMs(tm[1]);
-    const end = srtTimeToMs(tm[2]);
-    const text = lines.slice(idx+1).join(' ').trim();
-    if(!text) continue;
-    out.push({ start, end, text, translated: null, hasTimestamp: true });
-  }
-  return out;
-}
-
-function splitTextToSegments(raw){
-  if(looksLikeSrt(raw)){
-    const parsed = parseSrt(raw);
-    if(parsed.length > 0) return parsed;
-  }
-
-  const lines = raw.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
-  let pieces = [];
-  if(lines.length > 1){
-    pieces = lines;
-  } else {
-    // Single block of text — split on sentence boundaries (Myanmar ။ ၊ or Latin . ! ?)
-    const single = lines[0] || '';
-    pieces = single
-      .split(/(?<=[။၊.!?])\s+/)
-      .map(s => s.trim())
-      .filter(Boolean);
-    if(pieces.length === 0 && single) pieces = [single];
-  }
-  const SPACING_MS = 3000;
-  return pieces.map((text, idx) => ({
-    start: idx * SPACING_MS,
-    end: idx * SPACING_MS + SPACING_MS - 200,
-    text,
-    translated: null,
-    hasTimestamp: false
-  }));
-}
-
-$('btnUseText').addEventListener('click', () => {
-  showErr('pasteErr', '');
-  const raw = $('pasteText').value;
-  if(!raw || !raw.trim()){ showErr('pasteErr', 'ဘာသာပြန်ချင်တဲ့ စာသားကို အရင်ကူးထည့်ပါ။'); return; }
-
-  segments = splitTextToSegments(raw);
-  renderTranscript();
-
-  $('pasteStatus').textContent = 'LOADED';
-  $('transStatus').textContent = 'PASTED TEXT';
-  $('translateStatus').textContent = 'READY';
-  $('btnTranslate').disabled = segments.length === 0;
-  $('masterLed').className = 'led on';
-});
-
-$('btnClearText').addEventListener('click', () => {
-  $('pasteText').value = '';
-  $('pasteStatus').textContent = 'IDLE';
-  showErr('pasteErr', '');
-});
-
-// ---------- Helpers ----------
-function fmtTime(ms){
-  const totalSec = Math.floor(ms/1000);
-  const h = Math.floor(totalSec/3600);
-  const m = Math.floor((totalSec%3600)/60);
-  const s = totalSec%60;
-  if(h>0) return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
-  return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
-}
-function fmtSrtTime(ms){
-  const totalMs = Math.max(0, Math.floor(ms));
-  const h = Math.floor(totalMs/3600000);
-  const m = Math.floor((totalMs%3600000)/60000);
-  const s = Math.floor((totalMs%60000)/1000);
-  const msPart = totalMs%1000;
-  return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0')+','+String(msPart).padStart(3,'0');
-}
-function showErr(boxId, msg){
-  const box = $(boxId);
-  if(!msg){ box.innerHTML = ''; return; }
-  box.innerHTML = '<div class="errbox">' + msg.replace(/</g,'&lt;') + '</div>';
-}
-function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
-
-// ---------- Render transcript ----------
-function renderTranscript(){
-  const list = $('transcriptList');
-  $('segCount').textContent = segments.length + ' SEGMENTS';
-  if(segments.length === 0){
-    list.innerHTML = '<div class="empty-note">No segments yet.</div>';
-    return;
-  }
-  list.innerHTML = segments.map(seg => `
-    <div class="segment">
-      ${seg.hasTimestamp ? `<div class="tape-counter">${fmtTime(seg.start)}</div>` : `<div class="tape-counter" style="visibility:hidden;">--:--</div>`}
-      <div>
-        <div class="seg-orig">${seg.text.replace(/</g,'&lt;')}</div>
-        ${seg.translated ? '<div class="seg-trans">'+seg.translated.replace(/</g,'&lt;')+'</div>' : ''}
-      </div>
-    </div>
-  `).join('');
-}
-
-// ---------- Transcription flow ----------
-$('btnTranscribe').addEventListener('click', async () => {
-  showErr('transErr', '');
-  const key = $('assemblyKey').value.trim();
-  if(!key){ showErr('transErr', 'Enter your AssemblyAI API key in CH.01 first.'); return; }
-  if(!selectedFile){ showErr('transErr', 'Choose an audio or video file first.'); return; }
-
-  const btn = $('btnTranscribe');
-  btn.disabled = true;
-  $('waveform').classList.add('live');
-  $('masterLed').className = 'led busy';
-  $('transStatus').textContent = 'UPLOADING';
-  $('transProgress').textContent = 'Uploading file to AssemblyAI…';
-
-  try {
-    // 1. Upload file
-    const uploadRes = await fetch('https://api.assemblyai.com/v2/upload', {
-      method: 'POST',
-      headers: assemblyBaseHeaders(),
-      body: selectedFile
-    });
-    if(!uploadRes.ok) throw new Error('Upload failed: ' + uploadRes.status + ' ' + (await uploadRes.text()));
-    const uploadData = await uploadRes.json();
-    const audioUrl = uploadData.upload_url;
-
-    // 2. Request transcript
-    $('transStatus').textContent = 'QUEUED';
-    $('transProgress').textContent = 'Submitting transcription job…';
-    const createRes = await fetch('https://api.assemblyai.com/v2/transcript', {
-      method: 'POST',
-      headers: { ...assemblyBaseHeaders(), 'content-type': 'application/json' },
-      body: JSON.stringify({ audio_url: audioUrl, punctuate: true, format_text: true })
-    });
-    if(!createRes.ok) throw new Error('Create transcript failed: ' + createRes.status + ' ' + (await createRes.text()));
-    const createData = await createRes.json();
-    const transcriptId = createData.id;
-
-    // 3. Poll
-    let status = createData.status;
-    let pollData = createData;
-    let dots = 0;
-    while(status !== 'completed' && status !== 'error'){
-      await sleep(3000);
-      dots = (dots + 1) % 4;
-      $('transStatus').textContent = status ? status.toUpperCase() : 'PROCESSING';
-      $('transProgress').textContent = 'Transcribing' + '.'.repeat(dots) + ' (this can take a bit for longer files)';
-      const pollRes = await fetch('https://api.assemblyai.com/v2/transcript/' + transcriptId, {
-        headers: assemblyBaseHeaders()
-      });
-      if(!pollRes.ok) throw new Error('Polling failed: ' + pollRes.status);
-      pollData = await pollRes.json();
-      status = pollData.status;
+    function setStatus(msg, type = '') {
+      statusEl.className = 'status ' + type;
+      statusEl.innerHTML = msg;
     }
 
-    if(status === 'error') throw new Error('AssemblyAI error: ' + (pollData.error || 'unknown error'));
-
-    // 4. Fetch sentence-level timestamps
-    $('transProgress').textContent = 'Fetching timestamped sentences…';
-    const sentRes = await fetch('https://api.assemblyai.com/v2/transcript/' + transcriptId + '/sentences', {
-      headers: assemblyBaseHeaders()
-    });
-    let sentences = [];
-    if(sentRes.ok){
-      const sentData = await sentRes.json();
-      sentences = (sentData.sentences || []).map(s => ({ start: s.start, end: s.end, text: s.text }));
-    }
-    // Fallback if sentences endpoint gave nothing usable
-    if(sentences.length === 0 && pollData.text){
-      sentences = [{ start: 0, end: pollData.audio_duration ? pollData.audio_duration*1000 : 0, text: pollData.text }];
+    function clearAll() {
+      sourceText.value = '';
+      resultText.value = '';
+      sourceCount.textContent = '0 လုံး';
+      resultCount.textContent = '0 လုံး';
+      setStatus('');
     }
 
-    segments = sentences.map(s => ({ start: s.start, end: s.end, text: s.text, translated: null, hasTimestamp: true }));
-    renderTranscript();
-
-    $('transStatus').textContent = 'DONE';
-    $('transProgress').textContent = 'Transcription complete — ' + segments.length + ' segments.';
-    $('translateStatus').textContent = 'READY';
-    $('btnTranslate').disabled = segments.length === 0;
-    $('masterLed').className = 'led on';
-  } catch(err){
-    $('transStatus').textContent = 'ERROR';
-    $('transProgress').textContent = '';
-    showErr('transErr', String(err.message || err));
-    $('masterLed').className = 'led';
-  } finally {
-    $('waveform').classList.remove('live');
-    btn.disabled = false;
-  }
-});
-
-// ---------- Translation flow ----------
-async function callGeminiBatch(batch, lang, model, key){
-  const numberedList = batch.map((s, idx) => `${idx+1}. ${s.text}`).join('\n');
-  const prompt = `Translate each numbered line below into ${lang}. Preserve meaning and natural tone; keep it concise like spoken dialogue. Respond with ONLY a raw JSON array of strings, same length and same order as the input, no markdown, no code fences, no numbering in the output strings.${characterNameNote()}\n\n${numberedList}`;
-
-  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(key)}`, {
-    method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({
-      contents: [{ parts: [{ text: prompt }] }],
-      generationConfig: {
-        responseMimeType: 'application/json',
-        maxOutputTokens: 8192
+    async function copyResult() {
+      if (!resultText.value) return;
+      try {
+        await navigator.clipboard.writeText(resultText.value);
+        setStatus('✅ Copy လုပ်ပြီးပါပြီ', 'success');
+        setTimeout(() => setStatus(''), 2000);
+      } catch (e) {
+        setStatus('❌ Copy မလုပ်နိုင်ပါ', 'error');
       }
-    })
-  });
-  if(!res.ok) throw new Error('Gemini request failed: ' + res.status + ' ' + (await res.text()));
-  const data = await res.json();
-
-  const candidate = (data.candidates || [])[0] || {};
-  if(candidate.finishReason === 'MAX_TOKENS'){
-    throw new Error('Response truncated (hit max output tokens)');
-  }
-  const rawText = (candidate.content || {}).parts?.map(p => p.text || '').join('') || '';
-  const cleaned = rawText.trim().replace(/^```json/i,'').replace(/^```/,'').replace(/```$/,'').trim();
-
-  let translations;
-  try {
-    translations = JSON.parse(cleaned);
-  } catch(parseErr){
-    const match = cleaned.match(/\[[\s\S]*\]/);
-    if(match) translations = JSON.parse(match[0]);
-    else throw new Error('Could not parse Gemini response as JSON');
-  }
-  if(!Array.isArray(translations) || translations.length !== batch.length){
-    throw new Error('Gemini returned ' + (Array.isArray(translations)?translations.length:'non-array') + ' items, expected ' + batch.length);
-  }
-  return translations.map(t => String(t));
-}
-
-// Translates a batch; if it fails, splits it in half and retries recursively
-// so one bad/oversized batch never wipes out the rest of the run.
-let lastTranslateError = '';
-async function translateBatchWithRetry(batch, lang, model, key, depth){
-  try {
-    return await callGeminiBatch(batch, lang, model, key);
-  } catch(err){
-    lastTranslateError = String(err.message || err);
-    if(batch.length > 1 && depth < 6){
-      const mid = Math.ceil(batch.length / 2);
-      const left = await translateBatchWithRetry(batch.slice(0, mid), lang, model, key, depth + 1);
-      const right = await translateBatchWithRetry(batch.slice(mid), lang, model, key, depth + 1);
-      return left.concat(right);
     }
-    // Single segment still failing after splitting — try one direct retry, then give up on just this line
-    try {
-      return await callGeminiBatch(batch, lang, model, key);
-    } catch(err2){
-      lastTranslateError = String(err2.message || err2);
-      return batch.map(() => null); // null marks "failed to translate"
+
+    function buildPrompt(text, srcLang) {
+      const langHint = srcLang === 'auto'
+        ? 'မူရင်းစာသားသည် တရုတ် သို့မဟုတ် အင်္ဂလိပ် ဖြစ်နိုင်သည်။ ဘာသာစကားကို ကိုယ်တိုင်ခွဲခြားပါ။'
+        : `မူရင်းဘာသာစကားသည် ${srcLang === 'Chinese' ? 'တရုတ်' : 'အင်္ဂလိပ်'} ဖြစ်သည်။`;
+
+      return `သင်သည် Movie Recap ဗီဒီယိုများအတွက် ကျွမ်းကျင်သော ဘာသာပြန်သမားတစ်ဦးဖြစ်သည်။
+${langHint}
+
+အောက်ပါ မူရင်းစာသားကို သဘာဝကျသော မြန်မာဘာသာဖြင့် ဘာသာပြန်ပေးပါ။
+
+လိုက်နာရမည့် အချက်များ:
+1. Movie Recap ပုံစံနှင့် ကိုက်ညီအောင် သဘာဝကျကျ၊ စီးဆင်းမှုကောင်းမွန်စွာ ပြန်ဆိုပါ။
+2. ဇာတ်ကောင်အမည်များ၊ နေရာအမည်များကို မူရင်းအတိုင်း (သို့) အသံထွက်နီးစပ်စွာ ထားပါ။
+3. စကားပြောပုံစံ (dialogue) များကို သဘာဝကျသော မြန်မာစကားပြောပုံစံဖြင့် ပြန်ဆိုပါ။
+4. မူရင်းအဓိပ္ပာယ် မပျောက်စေရန်၊ အကြောင်းအရာ မပြောင်းလဲစေရန်။
+5. ဘာသာပြန်ချက်သာ ပြန်ပေးပါ။ ရှင်းလင်းချက် သို့မဟုတ် နိဒါန်း မထည့်ပါနှင့်။
+
+မူရင်းစာသား:
+"""
+${text}
+"""
+
+မြန်မာဘာသာပြန်:`;
     }
-  }
-}
 
-$('btnTranslate').addEventListener('click', async () => {
-  showErr('translateErr', '');
-  const key = $('geminiKey').value.trim();
-  const model = currentGeminiModel();
-  if(!key){ showErr('translateErr', 'Enter your Gemini API key in CH.01 first.'); return; }
-  if(segments.length === 0){ showErr('translateErr', 'Run transcription first.'); return; }
+    async function translateText() {
+      const text = sourceText.value.trim();
+      const apiKey = apiKeyInput.value.trim();
 
-  const lang = currentTargetLang();
-  const btn = $('btnTranslate');
-  btn.disabled = true;
-  $('translateStatus').textContent = 'TRANSLATING';
-  $('masterLed').className = 'led busy';
+      if (!apiKey) {
+        setStatus('⚠️ Gemini API Key ထည့်ပါ', 'error');
+        apiKeyInput.focus();
+        return;
+      }
+      if (!text) {
+        setStatus('⚠️ မူရင်းစာသား ထည့်ပါ', 'error');
+        sourceText.focus();
+        return;
+      }
 
-  const BATCH = 20;
-  let failedCount = 0;
-  lastTranslateError = '';
-  try {
-    for(let i = 0; i < segments.length; i += BATCH){
-      const batch = segments.slice(i, i + BATCH);
-      $('translateProgress').textContent = `Translating segments ${i+1}–${Math.min(i+BATCH, segments.length)} of ${segments.length}…`;
+      const srcLang = document.getElementById('sourceLang').value;
+      translateBtn.disabled = true;
+      setStatus('<span class="spinner"></span> ဘာသာပြန်နေသည်...', 'loading');
+      resultText.value = '';
 
-      const translations = await translateBatchWithRetry(batch, lang, model, key, 0);
-      for(let j = 0; j < batch.length; j++){
-        if(translations[j] === null){
-          failedCount++;
-        } else {
-          segments[i+j].translated = translations[j];
+      try {
+        const url = `${API_BASE}/${API_MODEL}:generateContent?key=${encodeURIComponent(apiKey)}`;
+        const prompt = buildPrompt(text, srcLang);
+
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{
+              parts: [{ text: prompt }]
+            }],
+            generationConfig: {
+              temperature: 0.7,
+              topP: 0.95,
+              topK: 40,
+              maxOutputTokens: 8192
+            }
+          })
+        });
+
+        if (!response.ok) {
+          const err = await response.json().catch(() => ({}));
+          const msg = err?.error?.message || `HTTP ${response.status}`;
+          throw new Error(msg);
         }
+
+        const data = await response.json();
+        const translated = data?.candidates?.[0]?.content?.parts
+          ?.map(p => p.text || '')
+          .join('')
+          .trim();
+
+        if (!translated) {
+          throw new Error('ဘာသာပြန်ချက် မရရှိပါ');
+        }
+
+        resultText.value = translated;
+        resultCount.textContent = translated.length + ' လုံး';
+        setStatus('✅ ဘာသာပြန် ပြီးပါပြီ', 'success');
+
+      } catch (error) {
+        console.error(error);
+        setStatus('❌ Error: ' + error.message, 'error');
+      } finally {
+        translateBtn.disabled = false;
       }
-      renderTranscript();
     }
 
-    if(failedCount > 0){
-      $('translateStatus').textContent = 'DONE (partial)';
-      $('translateProgress').textContent = `Translation finished → ${lang}. ${failedCount} segment(s) could not be translated and were left as original text.`;
-      if(lastTranslateError){
-        showErr('translateErr', 'Last error seen during translation:\n' + lastTranslateError);
+    // Ctrl+Enter ဖြင့် translate
+    sourceText.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        translateText();
       }
-    } else {
-      $('translateStatus').textContent = 'DONE';
-      $('translateProgress').textContent = 'Translation complete → ' + lang + '.';
-    }
-    $('btnExportSrt').disabled = false;
-    $('btnExportTxt').disabled = false;
-    $('btnCopyTranslation').disabled = false;
-    $('masterLed').className = 'led on';
-  } catch(err){
-    $('translateStatus').textContent = 'ERROR';
-    showErr('translateErr', String(err.message || err));
-    $('masterLed').className = 'led';
-  } finally {
-    btn.disabled = false;
-  }
-});
-
-// ---------- Export ----------
-function downloadFile(filename, content, mime){
-  const blob = new Blob([content], { type: mime });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = filename;
-  document.body.appendChild(a); a.click(); document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-}
-
-$('btnExportSrt').addEventListener('click', () => {
-  const lines = segments.map((s, idx) => {
-    const text = s.translated || s.text;
-    return `${idx+1}\n${fmtSrtTime(s.start)} --> ${fmtSrtTime(s.end)}\n${text}\n`;
-  }).join('\n');
-  downloadFile('transcript.srt', lines, 'application/x-subrip');
-});
-
-$('btnExportTxt').addEventListener('click', () => {
-  const lines = segments.map(s => `${s.hasTimestamp ? `[${fmtTime(s.start)}] ` : ''}${s.text}${s.translated ? '\n       → ' + s.translated : ''}`).join('\n\n');
-  downloadFile('transcript.txt', lines, 'text/plain');
-});
-$('btnCopyTranslation').addEventListener('click', async () => {
-  const text = segments.map(s => s.translated || '').filter(Boolean).join('\n');
-  if(!text){ showErr('translateErr', 'Copy လုပ်ရန် ဘာသာပြန်စာသား မရှိသေးပါ။'); return; }
-  try { await navigator.clipboard.writeText(text); }
-  catch(err) { const ta=document.createElement('textarea'); ta.value=text; ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); }
-  $('translateProgress').textContent = 'ဘာသာပြန်စာသားသီးသန့် Copy လုပ်ပြီးပါပြီ ✓';
-});
-
-</script>
+    });
+  </script>
 </body>
 </html>
