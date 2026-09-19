@@ -14,7 +14,6 @@
       overflow-x: hidden;
     }
 
-    /* ===== Page System ===== */
     .page { display: none; min-height: 100vh; }
     .page.active { display: block; animation: fadeIn 0.4s ease; }
     @keyframes fadeIn {
@@ -32,11 +31,7 @@
     }
     #landingPage.active { display: grid; }
 
-    .landing-wrap {
-      max-width: 900px;
-      width: 100%;
-      text-align: center;
-    }
+    .landing-wrap { max-width: 900px; width: 100%; text-align: center; }
 
     .logo-badge {
       display: inline-block;
@@ -68,7 +63,6 @@
       margin: 0 auto 44px;
     }
 
-    /* ===== Feature Cards (ရွေးချယ်စရာများ) ===== */
     .feature-label {
       font-size: 14px;
       color: #7a7a95;
@@ -121,16 +115,8 @@
       box-shadow: 0 12px 36px rgba(255, 217, 61, 0.15);
     }
 
-    .feature-icon {
-      font-size: 34px;
-      margin-bottom: 14px;
-      display: block;
-    }
-    .feature-title {
-      font-size: 19px;
-      font-weight: 800;
-      margin-bottom: 8px;
-    }
+    .feature-icon { font-size: 34px; margin-bottom: 14px; display: block; }
+    .feature-title { font-size: 19px; font-weight: 800; margin-bottom: 8px; }
     .feature-card.fast .feature-title { color: #4d96ff; }
     .feature-card.recap .feature-title { color: #ffd93d; }
 
@@ -152,7 +138,7 @@
     .feature-card.recap .feature-cta { color: #ffd93d; }
     .feature-card:hover .feature-cta { gap: 12px; }
 
-    /* ===== Workspace Page ===== */
+    /* ===== Workspace ===== */
     .topbar {
       display: flex;
       align-items: center;
@@ -166,7 +152,7 @@
       z-index: 50;
       flex-wrap: wrap;
     }
-    .topbar-left { display: flex; align-items: center; gap: 14px; }
+    .topbar-left { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
     .back-btn {
       background: #2a2a3e;
       color: #e0e0e0;
@@ -179,11 +165,7 @@
       transition: 0.2s;
     }
     .back-btn:hover { background: #3a3a52; }
-    .topbar-title {
-      font-size: 17px;
-      font-weight: 700;
-      color: #e8e8f0;
-    }
+    .topbar-title { font-size: 17px; font-weight: 700; color: #e8e8f0; }
     .mode-tag {
       font-size: 11px;
       padding: 3px 10px;
@@ -256,6 +238,118 @@
       white-space: nowrap;
     }
     .mini-btn:hover { background: #3a3a52; color: #fff; }
+    .mini-btn.gold {
+      background: #ffd93d22;
+      color: #ffd93d;
+      border: 1px solid #ffd93d55;
+    }
+    .mini-btn.gold:hover { background: #ffd93d33; }
+
+    /* ===== Character Box ===== */
+    .char-box {
+      background: #1c1c2c;
+      border: 1px solid #ffd93d44;
+      border-radius: 14px;
+      padding: 16px 18px;
+      margin-bottom: 20px;
+      display: none;
+    }
+    .char-box.visible { display: block; animation: fadeIn 0.35s ease; }
+
+    .char-box-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .char-box-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #ffd93d;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .char-box-hint {
+      font-size: 12px;
+      color: #8a8aa5;
+      line-height: 1.7;
+      margin-bottom: 12px;
+    }
+    .char-box-hint code {
+      background: #12121c;
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: #6bcb77;
+      font-size: 11px;
+    }
+
+    .char-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .char-row {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr auto;
+      gap: 10px;
+      align-items: center;
+    }
+    @media (max-width: 620px) {
+      .char-row { grid-template-columns: 1fr; }
+      .char-row .arrow { transform: rotate(90deg); }
+    }
+
+    .char-row input {
+      padding: 10px 14px;
+      background: #12121c;
+      border: 1px solid #3a3a52;
+      border-radius: 8px;
+      color: #e0e0e0;
+      font-size: 14px;
+      font-family: inherit;
+      width: 100%;
+    }
+    .char-row input:focus { outline: none; border-color: #ffd93d; }
+    .char-row input::placeholder { color: #55556e; }
+
+    .arrow {
+      color: #ffd93d;
+      font-size: 16px;
+      font-weight: bold;
+      transition: 0.25s;
+    }
+
+    .del-btn {
+      background: #ff6b6b22;
+      color: #ff6b6b;
+      border: 1px solid #ff6b6b44;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: 0.2s;
+    }
+    .del-btn:hover { background: #ff6b6b33; }
+
+    .add-char-btn {
+      margin-top: 12px;
+      padding: 10px 18px;
+      background: #ffd93d1a;
+      color: #ffd93d;
+      border: 1px dashed #ffd93d66;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      transition: 0.2s;
+      width: 100%;
+    }
+    .add-char-btn:hover { background: #ffd93d2a; border-style: solid; }
 
     .panel-grid {
       display: grid;
@@ -412,7 +506,6 @@
       <div class="feature-label">━ MODE ရွေးချယ်ပါ ━</div>
 
       <div class="features">
-        <!-- မြန်ဆန်သည် → ပုံမှန် ဘာသာပြန် Mode -->
         <div class="feature-card fast" onclick="enterWorkspace('fast')">
           <span class="feature-icon">⚡</span>
           <div class="feature-title">မြန်ဆန်သည်</div>
@@ -422,12 +515,11 @@
           <div class="feature-cta">စတင်မယ် →</div>
         </div>
 
-        <!-- Recap Style → ဇာတ်ကောင်နာမည် သဘာဝအတိုင်း -->
         <div class="feature-card recap" onclick="enterWorkspace('recap')">
           <span class="feature-icon">🎬</span>
           <div class="feature-title">Recap Style</div>
           <div class="feature-text">
-            ဇာတ်ကောင်နာမည်များ (မင်းသား - ဂွေးတို၊ မင်းသမီး - ကြယ်စင်) ကို
+            ဇာတ်ကောင်နာမည်များကို ကိုယ်တိုင်ထည့်ပြီး
             သဘာဝအတိုင်း ထွက်သော စကားဖြင့် မြန်မာလို ပြန်ဆိုပါ။
           </div>
           <div class="feature-cta">စတင်မယ် →</div>
@@ -454,6 +546,20 @@
         <label>🔑 API Key:</label>
         <input type="password" id="apiKey" placeholder="AIza... သင့် Gemini API Key ထည့်ပါ">
         <button class="mini-btn" onclick="toggleKey()" id="toggleBtn">ပြရန်</button>
+      </div>
+
+      <!-- ===== ဇာတ်ကောင်နာမည် Box (Recap Style မှာသာ ပြသ) ===== -->
+      <div class="char-box" id="charBox">
+        <div class="char-box-header">
+          <span class="char-box-title">👥 ဇာတ်ကောင်နာမည် စာရင်း</span>
+          <button class="mini-btn gold" onclick="addCharacter()">+ ထပ်ထည့်</button>
+        </div>
+        <div class="char-box-hint">
+          မူရင်းအမည် (တရုတ်/Eng) → မြန်မာအမည် ကို ချိတ်ဆက်ပါ။
+          ဥပမာ — <code>李强</code> → <code>ဂွေးတို</code> ၊
+          <code>王芳</code> → <code>ကြယ်စင်</code>
+        </div>
+        <div class="char-list" id="charList"></div>
       </div>
 
       <div class="panel-grid">
@@ -494,21 +600,27 @@
     const API_MODEL = 'gemini-3.5-flash-lite';
     const API_BASE  = 'https://generativelanguage.googleapis.com/v1beta/models';
 
-    // Mode ကို မှတ်ထားမယ်
-    let currentMode = 'fast'; // 'fast' | 'recap'
+    let currentMode = 'fast';
 
     // ============ Page Navigation ============
     function enterWorkspace(mode) {
       currentMode = mode || 'fast';
 
-      // Mode tag ကို update
       const modeTag = document.getElementById('modeTag');
+      const charBox = document.getElementById('charBox');
+
       if (currentMode === 'recap') {
         modeTag.textContent = 'Recap Style';
         modeTag.className = 'mode-tag recap';
+        charBox.classList.add('visible');
+        // ဇာတ်ကောင် row မရှိသေးရင် default ၂ ခု ထည့်
+        if (document.getElementById('charList').children.length === 0) {
+          loadSavedCharacters();
+        }
       } else {
         modeTag.textContent = 'မြန်ဆန်သည်';
         modeTag.className = 'mode-tag fast';
+        charBox.classList.remove('visible');
       }
 
       document.getElementById('landingPage').classList.remove('active');
@@ -524,20 +636,9 @@
       history.pushState({ page: 'landing' }, '', '#');
     }
 
-    // Browser back button support
     window.addEventListener('popstate', (e) => {
       if (e.state?.page === 'workspace') {
-        currentMode = e.state.mode || 'fast';
-        const modeTag = document.getElementById('modeTag');
-        if (currentMode === 'recap') {
-          modeTag.textContent = 'Recap Style';
-          modeTag.className = 'mode-tag recap';
-        } else {
-          modeTag.textContent = 'မြန်ဆန်သည်';
-          modeTag.className = 'mode-tag fast';
-        }
-        document.getElementById('landingPage').classList.remove('active');
-        document.getElementById('workspacePage').classList.add('active');
+        enterWorkspace(e.state.mode || 'fast');
       } else {
         document.getElementById('workspacePage').classList.remove('active');
         document.getElementById('landingPage').classList.add('active');
@@ -552,8 +653,9 @@
     const sourceCount   = document.getElementById('sourceCount');
     const resultCount   = document.getElementById('resultCount');
     const apiKeyInput   = document.getElementById('apiKey');
+    const charList      = document.getElementById('charList');
 
-    // ============ API Key Persistence (auto-save) ============
+    // ============ API Key ============
     apiKeyInput.value = localStorage.getItem('gemini_api_key') || '';
     apiKeyInput.addEventListener('input', () => {
       localStorage.setItem('gemini_api_key', apiKeyInput.value.trim());
@@ -567,7 +669,6 @@
       resultCount.textContent = resultText.value.length + ' လုံး';
     });
 
-    // ============ Helpers ============
     function toggleKey() {
       const inp = apiKeyInput;
       const btn = document.getElementById('toggleBtn');
@@ -604,6 +705,63 @@
       }
     }
 
+    // ============ Character Management ============
+    function createCharRow(orig = '', mm = '') {
+      const row = document.createElement('div');
+      row.className = 'char-row';
+      row.innerHTML = `
+        <input type="text" class="char-orig" placeholder="မူရင်းအမည် (李强 / Li Qiang)" value="${escapeAttr(orig)}">
+        <span class="arrow">→</span>
+        <input type="text" class="char-mm" placeholder="မြန်မာအမည် (ဂွေးတို)" value="${escapeAttr(mm)}">
+        <button class="del-btn" onclick="this.parentElement.remove(); saveCharacters();" title="ဖျက်">✕</button>
+      `;
+      row.querySelectorAll('input').forEach(inp => {
+        inp.addEventListener('input', saveCharacters);
+      });
+      return row;
+    }
+
+    function escapeAttr(str) {
+      return String(str).replace(/"/g, '&quot;').replace(/</g, '&lt;');
+    }
+
+    function addCharacter(orig = '', mm = '') {
+      charList.appendChild(createCharRow(orig, mm));
+      saveCharacters();
+    }
+
+    function saveCharacters() {
+      const chars = getCharacters();
+      localStorage.setItem('recap_characters', JSON.stringify(chars));
+    }
+
+    function getCharacters() {
+      const rows = charList.querySelectorAll('.char-row');
+      const chars = [];
+      rows.forEach(row => {
+        const orig = row.querySelector('.char-orig').value.trim();
+        const mm   = row.querySelector('.char-mm').value.trim();
+        if (orig && mm) chars.push({ orig, mm });
+      });
+      return chars;
+    }
+
+    function loadSavedCharacters() {
+      try {
+        const saved = JSON.parse(localStorage.getItem('recap_characters') || '[]');
+        if (saved.length > 0) {
+          saved.forEach(c => addCharacter(c.orig, c.mm));
+        } else {
+          // Default ၂ ခု
+          addCharacter('李强', 'ဂွေးတို');
+          addCharacter('王芳', 'ကြယ်စင်');
+        }
+      } catch (e) {
+        addCharacter('李强', 'ဂွေးတို');
+        addCharacter('王芳', 'ကယ်စင်');
+      }
+    }
+
     // ============ Prompt Builders ============
     function buildFastPrompt(text, srcLang) {
       const langHint = srcLang === 'auto'
@@ -633,22 +791,26 @@ ${text}
         ? 'မူရင်းစာသားသည် တရုတ် သို့မဟုတ် အင်္ဂလိပ် ဖြစ်နိုင်သည်။ ဘာသာစကားကို ကိုယ်တိုင်ခွဲခြားပါ။'
         : `မူရင်းဘာသာစကားသည် ${srcLang === 'Chinese' ? 'တရုတ်' : 'အင်္ဂလိပ်'} ဖြစ်သည်။`;
 
+      // ဇာတ်ကောင်စာရင်း ဖန်တီး
+      const chars = getCharacters();
+      let charSection = '';
+      if (chars.length > 0) {
+        charSection = `\n★★★ မဖြစ်မနေ လိုက်နာရမည့် ဇာတ်ကောင်နာမည် စာရင်း ★★★\n`;
+        charSection += `အောက်ပါ ဇာတ်ကောင်အမည်များကို ပေးထားသော မြန်မာအမည်အတိုင်း အတိအကျ ပြောင်းလဲသုံးစွဲပါ။\n`;
+        charSection += `မူရင်းစာသားထဲမှာ ဒီအမည်တွေ ပေါ်လာရင် မြန်မာအမည်နဲ့ အစားထိုးပါ။\n\n`;
+        chars.forEach((c, i) => {
+          charSection += `  ${i + 1}. "${c.orig}"  →  "${c.mm}"\n`;
+        });
+        charSection += `\nဒီဇာတ်ကောင်တွေရဲ့ စကားပြောပုံစံကို မြန်မာလူမျိုးတွေ နေ့စဉ်ပြောနေကျ သဘာဝကျတဲ့ စကားနဲ့ ပြန်ဆိုပါ။\n`;
+      } else {
+        charSection = `\n★ ဇာတ်ကောင်နာမည်များကို သဘာဝကျသော မြန်မာအမည်များအဖြစ် ပြောင်းလဲပါ။\n`;
+        charSection += `ဥပမာ — မင်းသား → "ဂွေးတို" ၊ မင်းသမီး → "ကြယ်စင်"\n`;
+      }
+
       return `သင်သည် Movie Recap ဗီဒီယိုများအတွက် အထူးကျွမ်းကျင်သော မြန်မာ ဘာသာပြန်သမားတစ်ဦးဖြစ်သည်။
 ${langHint}
-
-အောက်ပါ မူရင်းစာသားကို **Recap Style** ဖြင့် မြန်မာလို ပြန်ဆိုပေးပါ။
-
-★★★ အရေးကြီးဆုံး လမ်းညွှန်ချက် ★★★
-ဇာတ်ကောင်များ၏ အမည်များကို မြန်မာစကားပြောပုံစံဖြင့် သဘာဝအတိုင်း ထွက်အောင် ပြန်ဆိုပါ။
-
-ဥပမာ -
-• မင်းသား (male lead) → "ဂွေးတို"
-• မင်းသမီး (female lead) → "ကြယ်စင်"
-
-ဇာတ်ကောင်များ၏ နာမည်များကို ဤပုံစံဖြင့် သဘာဝကျသော မြန်မာအမည်များအဖြစ် ပြောင်းလဲပေးပါ။
-(ဥပမာ - "李强" → "ဂွေးတို" ကဲ့သို့ သဘာဝကျသော မြန်မာအမည်)
-
-နောက်ထပ် လိုက်နာရမည့် အချက်များ:
+${charSection}
+လိုက်နာရမည့် အချက်များ:
 1. Movie Recap ပုံစံနှင့် ကိုက်ညီအောင် သဘာဝကျကျ၊ စီးဆင်းမှုကောင်းမွန်စွာ ပြန်ဆိုပါ။
 2. ဇာတ်ကောင်များ ပြောသော စကားများကို မြန်မာလူမျိုးများ နေ့စဉ်ပြောနေကျ သဘာဝကျသော စကားပြောပုံစံဖြင့် ပြန်ဆိုပါ။
 3. ရုပ်ရှင်ကြည့်နေရသလို ခံစားရအောင် သက်ဝင်လှုပ်ရှားစွာ ရေးပါ။
@@ -686,7 +848,6 @@ ${text}
 
       try {
         const url = `${API_BASE}/${API_MODEL}:generateContent?key=${encodeURIComponent(apiKey)}`;
-        // Mode အလိုက် prompt ရွေး
         const prompt = currentMode === 'recap'
           ? buildRecapPrompt(text, srcLang)
           : buildFastPrompt(text, srcLang);
@@ -730,12 +891,11 @@ ${text}
       }
     }
 
-    // Ctrl+Enter shortcut
     sourceText.addEventListener('keydown', (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') translateText();
     });
 
-    // URL hash ဖြင့် တိုက်ရိုက်ဝင်နိုင်ရန်
+    // URL hash
     if (location.hash === '#workspace-fast') enterWorkspace('fast');
     else if (location.hash === '#workspace-recap') enterWorkspace('recap');
   </script>
