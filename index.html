@@ -51,9 +51,9 @@
     }
 
     .landing-title {
-      font-size: clamp(32px, 6vw, 56px);
+      font-size: clamp(30px, 5.5vw, 52px);
       font-weight: 800;
-      line-height: 1.25;
+      line-height: 1.3;
       margin-bottom: 18px;
       background: linear-gradient(90deg, #6bcb77, #4d96ff, #ffd93d);
       -webkit-background-clip: text;
@@ -61,56 +61,96 @@
     }
 
     .landing-desc {
-      font-size: clamp(15px, 2vw, 18px);
+      font-size: clamp(14px, 2vw, 17px);
       color: #a0a0b8;
       line-height: 1.9;
       max-width: 620px;
-      margin: 0 auto 40px;
+      margin: 0 auto 44px;
     }
 
-    .enter-btn {
-      padding: 18px 54px;
-      font-size: 18px;
-      font-weight: 800;
-      border: none;
-      border-radius: 50px;
-      color: #fff;
-      background: linear-gradient(90deg, #4d96ff, #6bcb77);
-      cursor: pointer;
-      box-shadow: 0 10px 40px rgba(77, 150, 255, 0.35);
-      transition: all 0.25s;
-      font-family: inherit;
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
+    /* ===== Feature Cards (ရွေးချယ်စရာများ) ===== */
+    .feature-label {
+      font-size: 14px;
+      color: #7a7a95;
+      margin-bottom: 20px;
+      letter-spacing: 1px;
     }
-    .enter-btn:hover {
-      transform: translateY(-3px) scale(1.03);
-      box-shadow: 0 16px 50px rgba(107, 203, 119, 0.5);
-    }
-    .enter-btn:active { transform: scale(0.98); }
 
     .features {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 16px;
-      margin-top: 60px;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
       text-align: left;
+      max-width: 720px;
+      margin: 0 auto;
     }
+
     .feature-card {
       background: #1c1c2c;
       border: 1px solid #2e2e44;
-      border-radius: 14px;
-      padding: 20px;
+      border-radius: 16px;
+      padding: 28px 24px;
+      cursor: pointer;
       transition: 0.25s;
+      position: relative;
+      overflow: hidden;
     }
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      transition: opacity 0.25s;
+      pointer-events: none;
+    }
+    .feature-card.fast::before {
+      background: linear-gradient(135deg, #4d96ff22, transparent);
+    }
+    .feature-card.recap::before {
+      background: linear-gradient(135deg, #ffd93d22, #ff6b6b11, transparent);
+    }
+    .feature-card:hover::before { opacity: 1; }
+
     .feature-card:hover {
       border-color: #4d96ff66;
-      transform: translateY(-4px);
+      transform: translateY(-5px);
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.4);
     }
-    .feature-icon { font-size: 26px; margin-bottom: 10px; display: block; }
-    .feature-title { font-size: 15px; font-weight: 700; color: #ffd93d; margin-bottom: 6px; }
-    .feature-text { font-size: 13px; color: #9090a8; line-height: 1.7; }
+    .feature-card.recap:hover {
+      border-color: #ffd93d66;
+      box-shadow: 0 12px 36px rgba(255, 217, 61, 0.15);
+    }
+
+    .feature-icon {
+      font-size: 34px;
+      margin-bottom: 14px;
+      display: block;
+    }
+    .feature-title {
+      font-size: 19px;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+    .feature-card.fast .feature-title { color: #4d96ff; }
+    .feature-card.recap .feature-title { color: #ffd93d; }
+
+    .feature-text {
+      font-size: 13px;
+      color: #9090a8;
+      line-height: 1.8;
+      margin-bottom: 16px;
+    }
+    .feature-cta {
+      font-size: 13px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: gap 0.25s;
+    }
+    .feature-card.fast .feature-cta { color: #4d96ff; }
+    .feature-card.recap .feature-cta { color: #ffd93d; }
+    .feature-card:hover .feature-cta { gap: 12px; }
 
     /* ===== Workspace Page ===== */
     .topbar {
@@ -142,16 +182,33 @@
     .topbar-title {
       font-size: 17px;
       font-weight: 700;
-      color: #ffd93d;
+      color: #e8e8f0;
     }
-    .model-tag {
+    .mode-tag {
       font-size: 11px;
-      color: #4d96ff;
-      background: #4d96ff1a;
-      border: 1px solid #4d96ff44;
       padding: 3px 10px;
       border-radius: 20px;
       margin-left: 8px;
+      vertical-align: middle;
+    }
+    .mode-tag.fast {
+      color: #4d96ff;
+      background: #4d96ff1a;
+      border: 1px solid #4d96ff44;
+    }
+    .mode-tag.recap {
+      color: #ffd93d;
+      background: #ffd93d1a;
+      border: 1px solid #ffd93d44;
+    }
+    .model-tag {
+      font-size: 11px;
+      color: #6bcb77;
+      background: #6bcb771a;
+      border: 1px solid #6bcb7744;
+      padding: 3px 10px;
+      border-radius: 20px;
+      margin-left: 6px;
       vertical-align: middle;
     }
 
@@ -349,32 +406,31 @@
       <h1 class="landing-title">တရုတ် / အင်္ဂလိပ် စာသားများကို<br>မြန်မာလို ဘာသာပြန်ပါ</h1>
       <p class="landing-desc">
         Movie Recap ဗီဒီယိုများအတွက် အထူးပြုလုပ်ထားသော ဘာသာပြန်ကိရိယာ။
-        Gemini 3.5 Flash Lite ကို အသုံးပြု၍ သဘာဝကျသော မြန်မာဘာသာပြန်ချက်များ ရယူပါ။
+        အောက်ပါ Mode ၂ မျိုးထဲမှ တစ်ခုကို ရွေးချယ်ပြီး စတင်ပါ။
       </p>
-      <button class="enter-btn" onclick="enterWorkspace()">
-        🌐 ဘာသာပြန် စတင်မယ်
-      </button>
+
+      <div class="feature-label">━ MODE ရွေးချယ်ပါ ━</div>
 
       <div class="features">
-        <div class="feature-card">
+        <!-- မြန်ဆန်သည် → ပုံမှန် ဘာသာပြန် Mode -->
+        <div class="feature-card fast" onclick="enterWorkspace('fast')">
           <span class="feature-icon">⚡</span>
           <div class="feature-title">မြန်ဆန်သည်</div>
-          <div class="feature-text">Gemini 3.5 Flash Lite ဖြင့် စက္ကန့်ပိုင်းအတွင်း ဘာသာပြန်</div>
+          <div class="feature-text">
+            ပုံမှန် ဘာသာပြန်ပုံစံ။ မြန်ဆန်ပြီး တိကျသော ဘာသာပြန်ချက် ရယူပါ။
+          </div>
+          <div class="feature-cta">စတင်မယ် →</div>
         </div>
-        <div class="feature-card">
+
+        <!-- Recap Style → ဇာတ်ကောင်နာမည် သဘာဝအတိုင်း -->
+        <div class="feature-card recap" onclick="enterWorkspace('recap')">
           <span class="feature-icon">🎬</span>
           <div class="feature-title">Recap Style</div>
-          <div class="feature-text">ဇာတ်ကောင်၊ dialogue များကို သဘာဝကျကျ ပြန်ဆို</div>
-        </div>
-        <div class="feature-card">
-          <span class="feature-icon">🔍</span>
-          <div class="feature-title">Auto Detect</div>
-          <div class="feature-text">တရုတ်/Eng ကို အလိုအလျောက် ခွဲခြားသိရှိ</div>
-        </div>
-        <div class="feature-card">
-          <span class="feature-icon">💾</span>
-          <div class="feature-title">Key သိမ်း</div>
-          <div class="feature-text">API Key ကို browser မှာ သိမ်း၊ ပြန်ဖွင့်ရင် auto-fill</div>
+          <div class="feature-text">
+            ဇာတ်ကောင်နာမည်များ (မင်းသား - ဂွေးတို၊ မင်းသမီး - ကြယ်စင်) ကို
+            သဘာဝအတိုင်း ထွက်သော စကားဖြင့် မြန်မာလို ပြန်ဆိုပါ။
+          </div>
+          <div class="feature-cta">စတင်မယ် →</div>
         </div>
       </div>
     </div>
@@ -387,6 +443,7 @@
         <button class="back-btn" onclick="exitWorkspace()">← နောက်သို့</button>
         <span class="topbar-title">
           📝 ဘာသာပြန် Workspace
+          <span id="modeTag" class="mode-tag fast">မြန်ဆန်သည်</span>
           <span class="model-tag">Gemini 3.5 Flash Lite</span>
         </span>
       </div>
@@ -437,12 +494,27 @@
     const API_MODEL = 'gemini-3.5-flash-lite';
     const API_BASE  = 'https://generativelanguage.googleapis.com/v1beta/models';
 
+    // Mode ကို မှတ်ထားမယ်
+    let currentMode = 'fast'; // 'fast' | 'recap'
+
     // ============ Page Navigation ============
-    function enterWorkspace() {
+    function enterWorkspace(mode) {
+      currentMode = mode || 'fast';
+
+      // Mode tag ကို update
+      const modeTag = document.getElementById('modeTag');
+      if (currentMode === 'recap') {
+        modeTag.textContent = 'Recap Style';
+        modeTag.className = 'mode-tag recap';
+      } else {
+        modeTag.textContent = 'မြန်ဆန်သည်';
+        modeTag.className = 'mode-tag fast';
+      }
+
       document.getElementById('landingPage').classList.remove('active');
       document.getElementById('workspacePage').classList.add('active');
       window.scrollTo(0, 0);
-      history.pushState({ page: 'workspace' }, '', '#workspace');
+      history.pushState({ page: 'workspace', mode: currentMode }, '', '#workspace-' + currentMode);
     }
 
     function exitWorkspace() {
@@ -455,6 +527,15 @@
     // Browser back button support
     window.addEventListener('popstate', (e) => {
       if (e.state?.page === 'workspace') {
+        currentMode = e.state.mode || 'fast';
+        const modeTag = document.getElementById('modeTag');
+        if (currentMode === 'recap') {
+          modeTag.textContent = 'Recap Style';
+          modeTag.className = 'mode-tag recap';
+        } else {
+          modeTag.textContent = 'မြန်ဆန်သည်';
+          modeTag.className = 'mode-tag fast';
+        }
         document.getElementById('landingPage').classList.remove('active');
         document.getElementById('workspacePage').classList.add('active');
       } else {
@@ -472,7 +553,7 @@
     const resultCount   = document.getElementById('resultCount');
     const apiKeyInput   = document.getElementById('apiKey');
 
-    // ============ API Key Persistence ============
+    // ============ API Key Persistence (auto-save) ============
     apiKeyInput.value = localStorage.getItem('gemini_api_key') || '';
     apiKeyInput.addEventListener('input', () => {
       localStorage.setItem('gemini_api_key', apiKeyInput.value.trim());
@@ -523,7 +604,8 @@
       }
     }
 
-    function buildPrompt(text, srcLang) {
+    // ============ Prompt Builders ============
+    function buildFastPrompt(text, srcLang) {
       const langHint = srcLang === 'auto'
         ? 'မူရင်းစာသားသည် တရုတ် သို့မဟုတ် အင်္ဂလိပ် ဖြစ်နိုင်သည်။ ဘာသာစကားကို ကိုယ်တိုင်ခွဲခြားပါ။'
         : `မူရင်းဘာသာစကားသည် ${srcLang === 'Chinese' ? 'တရုတ်' : 'အင်္ဂလိပ်'} ဖြစ်သည်။`;
@@ -534,11 +616,9 @@ ${langHint}
 အောက်ပါ မူရင်းစာသားကို သဘာဝကျသော မြန်မာဘာသာဖြင့် ဘာသာပြန်ပေးပါ။
 
 လိုက်နာရမည့် အချက်များ:
-1. Movie Recap ပုံစံနှင့် ကိုက်ညီအောင် သဘာဝကျကျ၊ စီးဆင်းမှုကောင်းမွန်စွာ ပြန်ဆိုပါ။
-2. ဇာတ်ကောင်အမည်များ၊ နေရာအမည်များကို မူရင်းအတိုင်း (သို့) အသံထွက်နီးစပ်စွာ ထားပါ။
-3. စကားပြောပုံစံ (dialogue) များကို သဘာဝကျသော မြန်မာစကားပြောပုံစံဖြင့် ပြန်ဆိုပါ။
-4. မူရင်းအဓိပ္ပာယ် မပျောက်စေရန်၊ အကြောင်းအရာ မပြောင်းလဲစေရန်။
-5. ဘာသာပြန်ချက်သာ ပြန်ပေးပါ။ ရှင်းလင်းချက် သို့မဟုတ် နိဒါန်း မထည့်ပါနှင့်။
+1. မြန်ဆန်ပြီး တိကျသော ဘာသာပြန်ချက် ပေးပါ။
+2. မူရင်းအဓိပ္ပာယ် မပျောက်စေရန်။
+3. ဘာသာပြန်ချက်သာ ပြန်ပေးပါ။ ရှင်းလင်းချက် မထည့်ပါနှင့်။
 
 မူရင်းစာသား:
 """
@@ -548,6 +628,42 @@ ${text}
 မြန်မာဘာသာပြန်:`;
     }
 
+    function buildRecapPrompt(text, srcLang) {
+      const langHint = srcLang === 'auto'
+        ? 'မူရင်းစာသားသည် တရုတ် သို့မဟုတ် အင်္ဂလိပ် ဖြစ်နိုင်သည်။ ဘာသာစကားကို ကိုယ်တိုင်ခွဲခြားပါ။'
+        : `မူရင်းဘာသာစကားသည် ${srcLang === 'Chinese' ? 'တရုတ်' : 'အင်္ဂလိပ်'} ဖြစ်သည်။`;
+
+      return `သင်သည် Movie Recap ဗီဒီယိုများအတွက် အထူးကျွမ်းကျင်သော မြန်မာ ဘာသာပြန်သမားတစ်ဦးဖြစ်သည်။
+${langHint}
+
+အောက်ပါ မူရင်းစာသားကို **Recap Style** ဖြင့် မြန်မာလို ပြန်ဆိုပေးပါ။
+
+★★★ အရေးကြီးဆုံး လမ်းညွှန်ချက် ★★★
+ဇာတ်ကောင်များ၏ အမည်များကို မြန်မာစကားပြောပုံစံဖြင့် သဘာဝအတိုင်း ထွက်အောင် ပြန်ဆိုပါ။
+
+ဥပမာ -
+• မင်းသား (male lead) → "ဂွေးတို"
+• မင်းသမီး (female lead) → "ကြယ်စင်"
+
+ဇာတ်ကောင်များ၏ နာမည်များကို ဤပုံစံဖြင့် သဘာဝကျသော မြန်မာအမည်များအဖြစ် ပြောင်းလဲပေးပါ။
+(ဥပမာ - "李强" → "ဂွေးတို" ကဲ့သို့ သဘာဝကျသော မြန်မာအမည်)
+
+နောက်ထပ် လိုက်နာရမည့် အချက်များ:
+1. Movie Recap ပုံစံနှင့် ကိုက်ညီအောင် သဘာဝကျကျ၊ စီးဆင်းမှုကောင်းမွန်စွာ ပြန်ဆိုပါ။
+2. ဇာတ်ကောင်များ ပြောသော စကားများကို မြန်မာလူမျိုးများ နေ့စဉ်ပြောနေကျ သဘာဝကျသော စကားပြောပုံစံဖြင့် ပြန်ဆိုပါ။
+3. ရုပ်ရှင်ကြည့်နေရသလို ခံစားရအောင် သက်ဝင်လှုပ်ရှားစွာ ရေးပါ။
+4. မူရင်းအဓိပ္ပာယ် မပျောက်စေရန်။
+5. ဘာသာပြန်ချက်သာ ပြန်ပေးပါ။ ရှင်းလင်းချက် မထည့်ပါနှင့်။
+
+မူရင်းစာသား:
+"""
+${text}
+"""
+
+မြန်မာဘာသာပြန် (Recap Style):`;
+    }
+
+    // ============ Translate ============
     async function translateText() {
       const text   = sourceText.value.trim();
       const apiKey = apiKeyInput.value.trim();
@@ -570,7 +686,10 @@ ${text}
 
       try {
         const url = `${API_BASE}/${API_MODEL}:generateContent?key=${encodeURIComponent(apiKey)}`;
-        const prompt = buildPrompt(text, srcLang);
+        // Mode အလိုက် prompt ရွေး
+        const prompt = currentMode === 'recap'
+          ? buildRecapPrompt(text, srcLang)
+          : buildFastPrompt(text, srcLang);
 
         const response = await fetch(url, {
           method: 'POST',
@@ -578,7 +697,7 @@ ${text}
           body: JSON.stringify({
             contents: [{ parts: [{ text: prompt }] }],
             generationConfig: {
-              temperature: 0.7,
+              temperature: currentMode === 'recap' ? 0.9 : 0.7,
               topP: 0.95,
               topK: 40,
               maxOutputTokens: 8192
@@ -617,7 +736,8 @@ ${text}
     });
 
     // URL hash ဖြင့် တိုက်ရိုက်ဝင်နိုင်ရန်
-    if (location.hash === '#workspace') enterWorkspace();
+    if (location.hash === '#workspace-fast') enterWorkspace('fast');
+    else if (location.hash === '#workspace-recap') enterWorkspace('recap');
   </script>
 </body>
 </html>
