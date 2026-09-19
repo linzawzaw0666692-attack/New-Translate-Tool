@@ -3,34 +3,168 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Movie Recap Translator - Gemini 3.5 Flash Lite</title>
+  <title>Movie Recap Tool</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: 'Pyidaungsu', 'Myanmar Text', sans-serif;
-      background: linear-gradient(135deg, #1e1e2e, #2d2d44);
+      background: #12121c;
       color: #e0e0e0;
       min-height: 100vh;
-      padding: 20px;
+      overflow-x: hidden;
     }
-    .container { max-width: 1100px; margin: 0 auto; }
-    h1 {
+
+    /* ===== Page System ===== */
+    .page { display: none; min-height: 100vh; }
+    .page.active { display: block; animation: fadeIn 0.4s ease; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ===== Landing Page ===== */
+    #landingPage {
+      display: none;
+      place-items: center;
+      background: radial-gradient(circle at 20% 20%, #1e2a4a 0%, #12121c 55%),
+                  radial-gradient(circle at 80% 80%, #2a1e3a 0%, transparent 60%);
+      padding: 40px 20px;
+    }
+    #landingPage.active { display: grid; }
+
+    .landing-wrap {
+      max-width: 900px;
+      width: 100%;
       text-align: center;
-      margin-bottom: 8px;
+    }
+
+    .logo-badge {
+      display: inline-block;
+      padding: 6px 16px;
+      background: #4d96ff22;
+      border: 1px solid #4d96ff55;
+      border-radius: 30px;
+      color: #6bb0ff;
+      font-size: 13px;
+      margin-bottom: 24px;
+      letter-spacing: 0.5px;
+    }
+
+    .landing-title {
+      font-size: clamp(32px, 6vw, 56px);
+      font-weight: 800;
+      line-height: 1.25;
+      margin-bottom: 18px;
       background: linear-gradient(90deg, #6bcb77, #4d96ff, #ffd93d);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      font-size: 28px;
     }
-    .subtitle {
-      text-align: center;
-      color: #999;
-      margin-bottom: 24px;
-      font-size: 14px;
+
+    .landing-desc {
+      font-size: clamp(15px, 2vw, 18px);
+      color: #a0a0b8;
+      line-height: 1.9;
+      max-width: 620px;
+      margin: 0 auto 40px;
     }
-    .api-box {
+
+    .enter-btn {
+      padding: 18px 54px;
+      font-size: 18px;
+      font-weight: 800;
+      border: none;
+      border-radius: 50px;
+      color: #fff;
+      background: linear-gradient(90deg, #4d96ff, #6bcb77);
+      cursor: pointer;
+      box-shadow: 0 10px 40px rgba(77, 150, 255, 0.35);
+      transition: all 0.25s;
+      font-family: inherit;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .enter-btn:hover {
+      transform: translateY(-3px) scale(1.03);
+      box-shadow: 0 16px 50px rgba(107, 203, 119, 0.5);
+    }
+    .enter-btn:active { transform: scale(0.98); }
+
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+      margin-top: 60px;
+      text-align: left;
+    }
+    .feature-card {
+      background: #1c1c2c;
+      border: 1px solid #2e2e44;
+      border-radius: 14px;
+      padding: 20px;
+      transition: 0.25s;
+    }
+    .feature-card:hover {
+      border-color: #4d96ff66;
+      transform: translateY(-4px);
+    }
+    .feature-icon { font-size: 26px; margin-bottom: 10px; display: block; }
+    .feature-title { font-size: 15px; font-weight: 700; color: #ffd93d; margin-bottom: 6px; }
+    .feature-text { font-size: 13px; color: #9090a8; line-height: 1.7; }
+
+    /* ===== Workspace Page ===== */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 22px;
+      background: #181826;
+      border-bottom: 1px solid #2a2a3e;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      flex-wrap: wrap;
+    }
+    .topbar-left { display: flex; align-items: center; gap: 14px; }
+    .back-btn {
       background: #2a2a3e;
-      padding: 16px;
+      color: #e0e0e0;
+      border: none;
+      padding: 9px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: 0.2s;
+    }
+    .back-btn:hover { background: #3a3a52; }
+    .topbar-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: #ffd93d;
+    }
+    .model-tag {
+      font-size: 11px;
+      color: #4d96ff;
+      background: #4d96ff1a;
+      border: 1px solid #4d96ff44;
+      padding: 3px 10px;
+      border-radius: 20px;
+      margin-left: 8px;
+      vertical-align: middle;
+    }
+
+    .workspace {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 22px;
+    }
+
+    .api-box {
+      background: #1c1c2c;
+      border: 1px solid #2e2e44;
+      padding: 14px 16px;
       border-radius: 12px;
       margin-bottom: 20px;
       display: flex;
@@ -38,28 +172,47 @@
       flex-wrap: wrap;
       align-items: center;
     }
-    .api-box label { font-size: 14px; color: #bbb; }
+    .api-box label { font-size: 13px; color: #a0a0b8; white-space: nowrap; }
     .api-box input {
       flex: 1;
-      min-width: 200px;
+      min-width: 180px;
       padding: 10px 14px;
-      background: #1e1e2e;
-      border: 1px solid #444;
+      background: #12121c;
+      border: 1px solid #3a3a52;
       border-radius: 8px;
       color: #e0e0e0;
       font-size: 14px;
+      font-family: monospace;
     }
+    .api-box input:focus { outline: none; border-color: #4d96ff; }
+
+    .mini-btn {
+      background: #2a2a3e;
+      color: #c0c0d8;
+      border: none;
+      padding: 9px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: 0.2s;
+      white-space: nowrap;
+    }
+    .mini-btn:hover { background: #3a3a52; color: #fff; }
+
     .panel-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 20px;
+      gap: 18px;
     }
-    @media (max-width: 768px) {
+    @media (max-width: 820px) {
       .panel-grid { grid-template-columns: 1fr; }
     }
+
     .panel {
-      background: #2a2a3e;
-      border-radius: 12px;
+      background: #1c1c2c;
+      border: 1px solid #2e2e44;
+      border-radius: 14px;
       padding: 16px;
       display: flex;
       flex-direction: column;
@@ -68,72 +221,111 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
       gap: 10px;
       flex-wrap: wrap;
     }
-    .panel-title { font-size: 16px; font-weight: bold; color: #ffd93d; }
+    .panel-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #e8e8f0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #4d96ff;
+      box-shadow: 0 0 8px #4d96ff;
+    }
+    .dot.green { background: #6bcb77; box-shadow: 0 0 8px #6bcb77; }
+
     select {
       padding: 6px 12px;
-      background: #1e1e2e;
-      color: #e0e0e0;
-      border: 1px solid #444;
+      background: #12121c;
+      color: #c0c0d8;
+      border: 1px solid #3a3a52;
       border-radius: 6px;
       font-size: 13px;
       cursor: pointer;
+      font-family: inherit;
     }
+    select:focus { outline: none; border-color: #4d96ff; }
+
     textarea {
       width: 100%;
-      min-height: 350px;
+      min-height: 380px;
       padding: 14px;
-      background: #1a1a2a;
-      border: 1px solid #3a3a4e;
-      border-radius: 8px;
+      background: #12121c;
+      border: 1px solid #2e2e44;
+      border-radius: 10px;
       color: #e0e0e0;
       font-size: 15px;
-      line-height: 1.7;
+      line-height: 1.8;
       resize: vertical;
       font-family: inherit;
     }
-    textarea:focus { outline: none; border-color: #ffd93d; }
-    .btn-row {
-      display: flex;
-      gap: 10px;
-      margin-top: 16px;
-      flex-wrap: wrap;
-      justify-content: center;
+    textarea:focus { outline: none; border-color: #4d96ff; }
+
+    .char-count {
+      font-size: 12px;
+      color: #6a6a80;
+      text-align: right;
+      margin-top: 8px;
     }
-    button {
-      padding: 12px 28px;
-      border: none;
-      border-radius: 8px;
-      font-size: 15px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: all 0.2s;
-      font-family: inherit;
+
+    .action-row {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 22px;
+      flex-wrap: wrap;
     }
     .btn-translate {
-      background: linear-gradient(90deg, #4d96ff, #6bcb77);
+      padding: 15px 46px;
+      font-size: 16px;
+      font-weight: 800;
+      border: none;
+      border-radius: 40px;
       color: #fff;
+      background: linear-gradient(90deg, #4d96ff, #6bcb77);
+      cursor: pointer;
+      transition: 0.25s;
+      font-family: inherit;
+      box-shadow: 0 8px 30px rgba(77, 150, 255, 0.3);
     }
     .btn-translate:hover:not(:disabled) {
       transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(77, 150, 255, 0.4);
+      box-shadow: 0 12px 40px rgba(107, 203, 119, 0.45);
     }
-    .btn-clear { background: #3a3a4e; color: #e0e0e0; }
-    .btn-copy { background: #6bcb77; color: #1e1e2e; padding: 8px 16px; font-size: 13px; }
-    button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
+    .btn-translate:disabled { opacity: 0.55; cursor: not-allowed; }
+
+    .btn-clear {
+      padding: 15px 30px;
+      font-size: 15px;
+      font-weight: 700;
+      border: 1px solid #3a3a52;
+      border-radius: 40px;
+      color: #c0c0d8;
+      background: transparent;
+      cursor: pointer;
+      font-family: inherit;
+      transition: 0.2s;
+    }
+    .btn-clear:hover { background: #2a2a3e; color: #fff; }
+
     .status {
       text-align: center;
-      margin-top: 14px;
+      margin-top: 16px;
       font-size: 14px;
-      min-height: 20px;
+      min-height: 22px;
     }
     .status.loading { color: #ffd93d; }
     .status.error { color: #ff6b6b; }
     .status.success { color: #6bcb77; }
-    .char-count { font-size: 12px; color: #777; text-align: right; margin-top: 6px; }
+
     .spinner {
       display: inline-block;
       width: 14px;
@@ -143,82 +335,150 @@
       border-radius: 50%;
       animation: spin 0.8s linear infinite;
       vertical-align: middle;
-      margin-right: 6px;
+      margin-right: 8px;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
-    .model-badge {
-      display: inline-block;
-      background: #4d96ff22;
-      color: #4d96ff;
-      border: 1px solid #4d96ff55;
-      padding: 3px 10px;
-      border-radius: 20px;
-      font-size: 12px;
-      margin-left: 6px;
-    }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>🎬 Movie Recap Translator <span class="model-badge">Gemini 3.5 Flash Lite</span></h1>
-    <p class="subtitle">တရုတ် / အင်္ဂလိပ် စာသား → မြန်မာဘာသာပြန်</p>
 
-    <div class="api-box">
-      <label>🔑 Gemini API Key:</label>
-      <input type="password" id="apiKey" placeholder="AIza... သင့် API Key ထည့်ပါ">
-      <button class="btn-copy" onclick="toggleKey()" id="toggleBtn">ပြရန်</button>
+  <!-- ================= LANDING PAGE ================= -->
+  <div id="landingPage" class="page active">
+    <div class="landing-wrap">
+      <span class="logo-badge">🎬 MOVIE RECAP TOOL</span>
+      <h1 class="landing-title">တရုတ် / အင်္ဂလိပ် စာသားများကို<br>မြန်မာလို ဘာသာပြန်ပါ</h1>
+      <p class="landing-desc">
+        Movie Recap ဗီဒီယိုများအတွက် အထူးပြုလုပ်ထားသော ဘာသာပြန်ကိရိယာ။
+        Gemini 3.5 Flash Lite ကို အသုံးပြု၍ သဘာဝကျသော မြန်မာဘာသာပြန်ချက်များ ရယူပါ။
+      </p>
+      <button class="enter-btn" onclick="enterWorkspace()">
+        🌐 ဘာသာပြန် စတင်မယ်
+      </button>
+
+      <div class="features">
+        <div class="feature-card">
+          <span class="feature-icon">⚡</span>
+          <div class="feature-title">မြန်ဆန်သည်</div>
+          <div class="feature-text">Gemini 3.5 Flash Lite ဖြင့် စက္ကန့်ပိုင်းအတွင်း ဘာသာပြန်</div>
+        </div>
+        <div class="feature-card">
+          <span class="feature-icon">🎬</span>
+          <div class="feature-title">Recap Style</div>
+          <div class="feature-text">ဇာတ်ကောင်၊ dialogue များကို သဘာဝကျကျ ပြန်ဆို</div>
+        </div>
+        <div class="feature-card">
+          <span class="feature-icon">🔍</span>
+          <div class="feature-title">Auto Detect</div>
+          <div class="feature-text">တရုတ်/Eng ကို အလိုအလျောက် ခွဲခြားသိရှိ</div>
+        </div>
+        <div class="feature-card">
+          <span class="feature-icon">💾</span>
+          <div class="feature-title">Key သိမ်း</div>
+          <div class="feature-text">API Key ကို browser မှာ သိမ်း၊ ပြန်ဖွင့်ရင် auto-fill</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= WORKSPACE PAGE ================= -->
+  <div id="workspacePage" class="page">
+    <div class="topbar">
+      <div class="topbar-left">
+        <button class="back-btn" onclick="exitWorkspace()">← နောက်သို့</button>
+        <span class="topbar-title">
+          📝 ဘာသာပြန် Workspace
+          <span class="model-tag">Gemini 3.5 Flash Lite</span>
+        </span>
+      </div>
     </div>
 
-    <div class="panel-grid">
-      <div class="panel">
-        <div class="panel-header">
-          <span class="panel-title">📥 မူရင်းစာသား</span>
-          <select id="sourceLang">
-            <option value="auto">Auto Detect</option>
-            <option value="Chinese">တရုတ်</option>
-            <option value="English">အင်္ဂလိပ်</option>
-          </select>
-        </div>
-        <textarea id="sourceText" placeholder="ဒီနေရာမှာ တရုတ် သို့မဟုတ် အင်္ဂလိပ် စာသားကို paste လုပ်ပါ..."></textarea>
-        <div class="char-count" id="sourceCount">0 လုံး</div>
+    <div class="workspace">
+      <div class="api-box">
+        <label>🔑 API Key:</label>
+        <input type="password" id="apiKey" placeholder="AIza... သင့် Gemini API Key ထည့်ပါ">
+        <button class="mini-btn" onclick="toggleKey()" id="toggleBtn">ပြရန်</button>
       </div>
 
-      <div class="panel">
-        <div class="panel-header">
-          <span class="panel-title">📤 မြန်မာဘာသာပြန်</span>
-          <button class="btn-copy" onclick="copyResult()">📋 Copy</button>
+      <div class="panel-grid">
+        <div class="panel">
+          <div class="panel-header">
+            <span class="panel-title"><span class="dot"></span> မူရင်းစာသား</span>
+            <select id="sourceLang">
+              <option value="auto">Auto Detect</option>
+              <option value="Chinese">တရုတ်</option>
+              <option value="English">အင်္ဂလိပ်</option>
+            </select>
+          </div>
+          <textarea id="sourceText" placeholder="ဒီနေရာမှာ တရုတ် သို့မဟုတ် အင်္ဂလိပ် စာသားကို paste လုပ်ပါ..."></textarea>
+          <div class="char-count" id="sourceCount">0 လုံး</div>
         </div>
-        <textarea id="resultText" placeholder="ဘာသာပြန်ချက် ဒီနေရာမှာ ပေါ်လာပါမည်..." readonly></textarea>
-        <div class="char-count" id="resultCount">0 လုံး</div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <span class="panel-title"><span class="dot green"></span> မြန်မာဘာသာပြန်</span>
+            <button class="mini-btn" onclick="copyResult()">📋 Copy</button>
+          </div>
+          <textarea id="resultText" placeholder="ဘာသာပြန်ချက် ဒီနေရာမှာ ပေါ်လာပါမည်..." readonly></textarea>
+          <div class="char-count" id="resultCount">0 လုံး</div>
+        </div>
       </div>
-    </div>
 
-    <div class="btn-row">
-      <button class="btn-translate" id="translateBtn" onclick="translateText()">🌐 မြန်မာလို ဘာသာပြန်မယ်</button>
-      <button class="btn-clear" onclick="clearAll()">🗑️ ရှင်းမယ်</button>
-    </div>
+      <div class="action-row">
+        <button class="btn-translate" id="translateBtn" onclick="translateText()">🌐 မြန်မာလို ဘာသာပြန်မယ်</button>
+        <button class="btn-clear" onclick="clearAll()">🗑️ ရှင်းမယ်</button>
+      </div>
 
-    <div class="status" id="status"></div>
+      <div class="status" id="status"></div>
+    </div>
   </div>
 
   <script>
-    // ✅ Gemini 3.5 Flash Lite
+    // ============ Config ============
     const API_MODEL = 'gemini-3.5-flash-lite';
-    const API_BASE = 'https://generativelanguage.googleapis.com/v1beta/models';
+    const API_BASE  = 'https://generativelanguage.googleapis.com/v1beta/models';
 
-    const sourceText = document.getElementById('sourceText');
-    const resultText = document.getElementById('resultText');
-    const statusEl = document.getElementById('status');
-    const translateBtn = document.getElementById('translateBtn');
-    const sourceCount = document.getElementById('sourceCount');
-    const resultCount = document.getElementById('resultCount');
-    const apiKeyInput = document.getElementById('apiKey');
+    // ============ Page Navigation ============
+    function enterWorkspace() {
+      document.getElementById('landingPage').classList.remove('active');
+      document.getElementById('workspacePage').classList.add('active');
+      window.scrollTo(0, 0);
+      history.pushState({ page: 'workspace' }, '', '#workspace');
+    }
 
+    function exitWorkspace() {
+      document.getElementById('workspacePage').classList.remove('active');
+      document.getElementById('landingPage').classList.add('active');
+      window.scrollTo(0, 0);
+      history.pushState({ page: 'landing' }, '', '#');
+    }
+
+    // Browser back button support
+    window.addEventListener('popstate', (e) => {
+      if (e.state?.page === 'workspace') {
+        document.getElementById('landingPage').classList.remove('active');
+        document.getElementById('workspacePage').classList.add('active');
+      } else {
+        document.getElementById('workspacePage').classList.remove('active');
+        document.getElementById('landingPage').classList.add('active');
+      }
+    });
+
+    // ============ Elements ============
+    const sourceText    = document.getElementById('sourceText');
+    const resultText    = document.getElementById('resultText');
+    const statusEl      = document.getElementById('status');
+    const translateBtn  = document.getElementById('translateBtn');
+    const sourceCount   = document.getElementById('sourceCount');
+    const resultCount   = document.getElementById('resultCount');
+    const apiKeyInput   = document.getElementById('apiKey');
+
+    // ============ API Key Persistence ============
     apiKeyInput.value = localStorage.getItem('gemini_api_key') || '';
     apiKeyInput.addEventListener('input', () => {
       localStorage.setItem('gemini_api_key', apiKeyInput.value.trim());
     });
 
+    // ============ Counters ============
     sourceText.addEventListener('input', () => {
       sourceCount.textContent = sourceText.value.length + ' လုံး';
     });
@@ -226,6 +486,7 @@
       resultCount.textContent = resultText.value.length + ' လုံး';
     });
 
+    // ============ Helpers ============
     function toggleKey() {
       const inp = apiKeyInput;
       const btn = document.getElementById('toggleBtn');
@@ -288,7 +549,7 @@ ${text}
     }
 
     async function translateText() {
-      const text = sourceText.value.trim();
+      const text   = sourceText.value.trim();
       const apiKey = apiKeyInput.value.trim();
 
       if (!apiKey) {
@@ -315,9 +576,7 @@ ${text}
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            contents: [{
-              parts: [{ text: prompt }]
-            }],
+            contents: [{ parts: [{ text: prompt }] }],
             generationConfig: {
               temperature: 0.7,
               topP: 0.95,
@@ -329,8 +588,7 @@ ${text}
 
         if (!response.ok) {
           const err = await response.json().catch(() => ({}));
-          const msg = err?.error?.message || `HTTP ${response.status}`;
-          throw new Error(msg);
+          throw new Error(err?.error?.message || `HTTP ${response.status}`);
         }
 
         const data = await response.json();
@@ -353,11 +611,13 @@ ${text}
       }
     }
 
+    // Ctrl+Enter shortcut
     sourceText.addEventListener('keydown', (e) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-        translateText();
-      }
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') translateText();
     });
+
+    // URL hash ဖြင့် တိုက်ရိုက်ဝင်နိုင်ရန်
+    if (location.hash === '#workspace') enterWorkspace();
   </script>
 </body>
 </html>
